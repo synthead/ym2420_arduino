@@ -2,7 +2,7 @@
 #include "fm_synth.h"
 #include "registers.h"
 
-void print_binary(int value) {
+void print_binary_byte(int value) {
   int bit_i;
   for (bit_i = 7; bit_i > -1; bit_i--) {
     Serial.print((value >> bit_i) % 2);
