@@ -1,6 +1,22 @@
 #ifndef FM_SYNTH_H
 #define FM_SYNTH_H
 
+#define F_NUMBER_RANGE 511
+#define MULTI_SAMPLE_WAVE_RANGE 15
+#define LEVEL_KEY_SCALE_RANGE 15
+#define MODULATION_INDEX_RANGE 63
+#define WAVE_DISTORTION_RANGE 3
+#define FM_FEEDBACK_CONSTANT_RANGE 7
+#define ATTACK_RANGE 15
+#define DECAY_RANGE 15
+#define SUSTAIN_RANGE 15
+#define RELEASE_RANGE 15
+#define RHYTHM_INSTRUMENTS_RANGE 31
+#define OCTAVE_RANGE 7
+#define INSTRUMENT_RANGE 15
+#define VOLUME_RANGE 15
+#define KEY_RANGE 87
+
 void toggle_oscillator(int);
 void f_number(int, int);
 void am_toggle(int);
