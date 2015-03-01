@@ -30,12 +30,3 @@ int analog_average(int chip_select, int channel, int range) {
   }
   return (sample_sum / ANALOG_SAMPLES) * range / 1023;
 }
-
-// int native_read(int analog_pin, int range) {
-//   long sample_sum = 0;
-//   int sample_i;
-//   for (sample_i = 0; sample_i < ANALOG_SAMPLES; sample_i++) {
-//     sample_sum += analogRead(analog_pin);
-//   }
-//   return (sample_sum / ANALOG_SAMPLES) * range / 1023;
-// }
