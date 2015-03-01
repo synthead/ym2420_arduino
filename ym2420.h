@@ -1,7 +1,6 @@
-#ifndef FM_SYNTH_H
-#define FM_SYNTH_H
+#ifndef YM2420_H
+#define YM2420_H
 
-#define F_NUMBER_RANGE 511
 #define MULTI_SAMPLE_WAVE_RANGE 15
 #define LEVEL_KEY_SCALE_RANGE 15
 #define MODULATION_INDEX_RANGE 63
@@ -16,6 +15,10 @@
 #define INSTRUMENT_RANGE 15
 #define VOLUME_RANGE 15
 #define KEY_RANGE 87
+
+void write_ym2420_changes();
+void setup_ym2420();
+void reset_ym2420();
 
 void toggle_oscillator(int);
 void f_number(int, int);

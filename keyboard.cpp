@@ -1,29 +1,63 @@
 #include "keyboard.h"
-#include "fm_synth.h"
+#include "ym2420.h"
+#include <SPI.h>
 
-MCP keyboard(1);
+#define MCP23S17_CS A1
+#define MCP23S17_CS_WAIT 20
 
-int active_keys[7][6] = {-1};
+#define OSCILLATOR_COUNT 9
+#define FIRST_KEY_NUMBER 40
+
 int active_oscillators[OSCILLATOR_COUNT] = {0};
+int active_keys[6][7] = {
+    {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1},
+    {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1},
+    {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1}};
+
+void mcp23s17_write(int address, int data) {
+  digitalWrite(MCP23S17_CS, LOW);
+
+  SPI.transfer(0b01000000);
+  SPI.transfer(address);
+  SPI.transfer(data);
+
+  digitalWrite(MCP23S17_CS, HIGH);
+}
+
+int mcp23s17_read(int address) {
+  digitalWrite(MCP23S17_CS, LOW);
+
+  SPI.transfer(0b01000001);
+  SPI.transfer(address);
+  int slave = SPI.transfer(0);
+
+  digitalWrite(MCP23S17_CS, HIGH);
+  return slave;
+}
+
+void setup_keyboard() {
+  pinMode(MCP23S17_CS, OUTPUT);
+  digitalWrite(MCP23S17_CS, HIGH);
+  mcp23s17_write(0x01, 0x00);
+}
 
 void scan_keyboard() {
-  int column;
-  for (column = 0; column < 6; column++) {
-    keyboard.byteWrite(0x12, 1 << column);
-    int keys = keyboard.byteRead(0x13);
+  for (int column = 0; column < 6; column++) {
+    mcp23s17_write(0x13, 1 << column);
+    int keys = mcp23s17_read(0x12);
 
-    int row;
-    for (row = 0; row < 7; row++) {
+    for (int row = 0; row < 7; row++) {
       int key_on = (keys >> row) % 2;
-
       if (active_keys[column][row] == -1 && key_on) {
         for (int oscillator = 0; oscillator < OSCILLATOR_COUNT; oscillator++) {
-          if (active_oscillators[oscillator] == false) {
-            key(oscillator, row + column * 7 - 6);
+          if (active_oscillators[oscillator] == 0) {
+            key(oscillator, row * 6 + column + FIRST_KEY_NUMBER);
             toggle_oscillator(oscillator);
 
-            active_oscillators[oscillator] = true;
+            active_oscillators[oscillator] = 1;
             active_keys[column][row] = oscillator;
+
+            break;
           }
         }
       } else if (active_keys[column][row] != -1 && ! key_on) {
@@ -35,4 +69,3 @@ void scan_keyboard() {
     }
   }
 }
-
