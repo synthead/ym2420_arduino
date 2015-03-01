@@ -5,10 +5,10 @@
 #define MCP23S17_CS A1
 #define MCP23S17_CS_WAIT 20
 
-#define OSCILLATOR_COUNT 9
 #define FIRST_KEY_NUMBER 40
+#define OSCILLATORS 8
 
-int active_oscillators[OSCILLATOR_COUNT] = {0};
+int active_oscillators[OSCILLATORS] = {0};
 int active_keys[6][7] = {
     {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1},
     {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1},
@@ -35,7 +35,11 @@ int mcp23s17_read(int address) {
   return slave;
 }
 
-void setup_keyboard() {
+void setup_keyboard(int instrument_number) {
+  for (int oscillator = 0; oscillator < OSCILLATORS; oscillator++) {
+    instrument(oscillator, instrument_number);
+  }
+
   pinMode(MCP23S17_CS, OUTPUT);
   digitalWrite(MCP23S17_CS, HIGH);
   mcp23s17_write(0x01, 0x00);
@@ -49,7 +53,7 @@ void scan_keyboard() {
     for (int row = 0; row < 7; row++) {
       int key_on = (keys >> row) % 2;
       if (active_keys[column][row] == -1 && key_on) {
-        for (int oscillator = 0; oscillator < OSCILLATOR_COUNT; oscillator++) {
+        for (int oscillator = 0; oscillator < OSCILLATORS; oscillator++) {
           if (active_oscillators[oscillator] == 0) {
             key(oscillator, row * 6 + column + FIRST_KEY_NUMBER);
             toggle_oscillator(oscillator);

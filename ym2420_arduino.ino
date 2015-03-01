@@ -7,9 +7,7 @@ void setup() {
   SPI.begin();
   setup_ym2420();
   reset_ym2420();
-  setup_keyboard();
-
-  instrument(0, 4);
+  setup_keyboard(INSTRUMENT_PIANO);
 }
 
 void loop() {
