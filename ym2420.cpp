@@ -28,7 +28,7 @@ int register_changes_sum = 0;
 
 // #include <stdio.h>
 // #include <math.h>
-// 
+//
 // int main() {
 //   for (int i = 0; i < 88; i++) {
 //     printf("%f\n", pow(2, (float)(i - 48) / 12) * 288.3584);
@@ -210,6 +210,6 @@ void key(int oscillator, int key_number) {
   int octave_number = (int)f_numbers[key_number] / 512;
   int f_number_int = f_numbers[key_number] / pow(2, octave_number);
 
-  octave(0, octave_number + 2);
+  octave(oscillator, octave_number + 2);
   f_number(oscillator, f_number_int);
 }
