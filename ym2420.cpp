@@ -1,23 +1,15 @@
 #include "ym2420.h"
+#include "mcp23s17.h"
 #include <Arduino.h>
 
-#define YM_D0 0
-#define YM_D1 1
-#define YM_D2 2
-#define YM_D3 3
-#define YM_D4 4
-#define YM_D5 5
-#define YM_D6 6
-#define YM_D7 7
+#define MCP23S17_HW_ADDRESS 0b000
 
-#define YM_A0 8
-#define YM_CS 9
-#define YM_IC 10
+#define YM_A0 2
+#define YM_CS 3
+#define YM_IC 4
 
 #define REGISTER_CHANGES_MAX 100
 #define RESET_TIME 1000
-
-int YM_D[8] = {YM_D0, YM_D1, YM_D2, YM_D3, YM_D4, YM_D5, YM_D6, YM_D7};
 
 int registers[0x38] = {0};
 int register_changes[REGISTER_CHANGES_MAX];
@@ -53,6 +45,43 @@ float f_numbers[88] = {
     2055.184918, 2177.392813, 2306.867200, 2444.040527, 2589.371025,
     2743.342888};
 
+void ym2420_setup() {
+  mcp23s17_write(MCP23S17_HW_ADDRESS, 0x00, 0x00);
+
+  pinMode(YM_A0, OUTPUT);
+  pinMode(YM_CS, OUTPUT);
+  pinMode(YM_IC, OUTPUT);
+
+  digitalWrite(YM_A0, 1);
+  digitalWrite(YM_CS, 1);
+  digitalWrite(YM_IC, 1);
+
+  ym2420_reset();
+}
+
+void ym2420_reset() {
+  digitalWrite(YM_IC, 0);
+  delayMicroseconds(RESET_TIME);
+  digitalWrite(YM_IC, 1);
+}
+
+void ym2420_write_changes() {
+  for (int change = 0; change < register_changes_sum; change++) {
+    mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, register_changes[change]);
+    digitalWrite(YM_A0, 0);
+    digitalWrite(YM_CS, 0);
+    digitalWrite(YM_CS, 1);
+
+    mcp23s17_write(
+        MCP23S17_HW_ADDRESS, 0x12, registers[register_changes[change]]);
+    digitalWrite(YM_A0, 1);
+    digitalWrite(YM_CS, 0);
+    digitalWrite(YM_CS, 1);
+  }
+
+  register_changes_sum = 0;
+}
+
 void add_register_change(int address) {
   register_changes[register_changes_sum] = address;
   register_changes_sum++;
@@ -72,49 +101,6 @@ void store_register_range(int address, int data, int position, int length) {
   int mask = ((1 << length) - 1) << position;
   registers[address] = (registers[address] & ~mask) | (data << position & mask);
   add_register_change(address);
-}
-
-void setup_ym2420() {
-  for (int pin = 0; pin < 8; pin++) {
-    pinMode(YM_D[pin], OUTPUT);
-  }
-  pinMode(YM_A0, OUTPUT);
-  pinMode(YM_CS, OUTPUT);
-  pinMode(YM_IC, OUTPUT);
-
-  digitalWrite(YM_A0, 1);
-  digitalWrite(YM_CS, 1);
-  digitalWrite(YM_IC, 1);
-
-  reset_ym2420();
-}
-
-void reset_ym2420() {
-  digitalWrite(YM_IC, 0);
-  delayMicroseconds(RESET_TIME);
-  digitalWrite(YM_IC, 1);
-}
-
-void apply_byte(int data) {
-  for (int pin = 0; pin < 8; pin++) {
-    digitalWrite(YM_D[pin], (data >> pin) % 2);
-  }
-}
-
-void write_ym2420_changes() {
-  for (int change = 0; change < register_changes_sum; change++) {
-    apply_byte(register_changes[change]);
-    digitalWrite(YM_A0, 0);
-    digitalWrite(YM_CS, 0);
-    digitalWrite(YM_CS, 1);
-
-    apply_byte(registers[register_changes[change]]);
-    digitalWrite(YM_A0, 1);
-    digitalWrite(YM_CS, 0);
-    digitalWrite(YM_CS, 1);
-  }
-
-  register_changes_sum = 0;
 }
 
 void toggle_oscillator(int oscillator) {

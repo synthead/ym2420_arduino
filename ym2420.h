@@ -33,9 +33,9 @@
 #define INSTRUMENT_ACOUSTIC_BASS 14
 #define INSTRUMENT_ELECTRIC_GUITAR 15
 
-void write_ym2420_changes();
-void setup_ym2420();
-void reset_ym2420();
+void ym2420_write_changes();
+void ym2420_setup();
+void ym2420_reset();
 
 void toggle_oscillator(int);
 void f_number(int, int);

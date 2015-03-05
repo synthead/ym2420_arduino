@@ -1,16 +1,18 @@
 #include "ym2420.h"
 #include "keyboard.h"
-#include "analog.h"
+#include "mcp23s17.h"
+// #include "analog.h"
 #include <SPI.h>
 
 void setup() {
   SPI.begin();
-  setup_ym2420();
-  reset_ym2420();
+  mcp23s17_setup();
+  ym2420_setup();
+  ym2420_reset();
   setup_keyboard(INSTRUMENT_PIANO);
 }
 
 void loop() {
   scan_keyboard();
-  write_ym2420_changes();
+  ym2420_write_changes();
 }
