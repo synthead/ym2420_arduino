@@ -82,7 +82,7 @@ void ym2420_write_changes() {
   register_changes_sum = 0;
 }
 
-void store_register_byte(int address, int new_value) {
+void store_byte(int address, int new_value) {
   if (registers[address] != new_value) {
     registers[address] = new_value;
     register_changes[register_changes_sum] = address;
@@ -90,104 +90,104 @@ void store_register_byte(int address, int new_value) {
   }
 }
 
-void toggle_register_bit(int address, int bit) {
+void toggle_bit(int address, int bit) {
   int new_value = registers[address] ^ 1 << bit;
-  store_register_byte(address, new_value);
+  store_byte(address, new_value);
 }
 
-void store_register_range(int address, int value, int position, int length) {
+void store_range(int address, int value, int position, int length) {
   int mask = ((1 << length) - 1) << position;
   int new_value = (registers[address] & ~mask) | (value << position & mask);
-  store_register_byte(address, new_value);
+  store_byte(address, new_value);
 }
 
 void toggle_oscillator(int oscillator) {
-  toggle_register_bit(0x20 + oscillator, 4);
+  toggle_bit(0x20 + oscillator, 4);
 }
 
 void f_number(int oscillator, int f_number) {
-  store_register_range(0x20 + oscillator, f_number & 0b000001111, 0, 4);
-  store_register_range(0x10 + oscillator, f_number >> 4, 0, 5);
+  store_range(0x20 + oscillator, f_number & 0b000001111, 0, 4);
+  store_range(0x10 + oscillator, f_number >> 4, 0, 5);
 }
 
-void am_toggle(int oscillator) {
-  toggle_register_bit(0x00 + oscillator, 7);
+void am_toggle(int destination) {
+  toggle_bit(0x00 + destination, 7);
 }
 
-void vibrato_toggle(int oscillator) {
-  toggle_register_bit(0x00 + oscillator, 6);
+void vibrato_toggle(int destination) {
+  toggle_bit(0x00 + destination, 6);
 }
 
-void sustained_sound_toggle(int oscillator) {
-  toggle_register_bit(0x00 + oscillator, 5);
+void sustained_sound_toggle(int destination) {
+  toggle_bit(0x00 + destination, 5);
 }
 
-void rate_key_scale_toggle(int oscillator) {
-  toggle_register_bit(0x00 + oscillator, 4);
+void rate_key_scale_toggle(int destination) {
+  toggle_bit(0x00 + destination, 4);
 }
 
-void multi_sample_wave(int oscillator, int value) {
-  store_register_range(0x00 + oscillator, value, 0, 4);
+void multi_sample_wave(int destination, int value) {
+  store_range(0x00 + destination, value, 0, 4);
 }
 
-void level_key_scale(int oscillator, int value) {
-  store_register_range(0x02 + oscillator, value, 6, 2);
+void level_key_scale(int destination, int value) {
+  store_range(0x02 + destination, value, 6, 2);
 }
 
 void modulation_index(int value) {
-  store_register_range(0x02, value, 0, 6);
+  store_range(0x02, value, 0, 6);
 }
 
-void wave_distortion(int value) {
-  store_register_range(0x03, value, 3, 2);
+void wave_distortion(int destination) {
+  toggle_bit(0x03, 3 + destination);
 }
 
 void fm_feedback_constant(int value) {
-  store_register_range(0x03, value, 0, 3);
+  store_range(0x03, value, 0, 3);
 }
 
-void attack(int oscillator, int value) {
-  store_register_range(0x04 + oscillator, value, 4, 4);
+void attack(int destination, int value) {
+  store_range(0x04 + destination, value, 4, 4);
 }
 
-void decay(int oscillator, int value) {
-  store_register_range(0x04 + oscillator, value, 0, 4);
+void decay(int destination, int value) {
+  store_range(0x04 + destination, value, 0, 4);
 }
 
-void sustain(int oscillator, int value) {
-  store_register_range(0x06 + oscillator, value, 4, 4);
+void sustain(int destination, int value) {
+  store_range(0x06 + destination, value, 4, 4);
 }
 
-void release(int oscillator, int value) {
-  store_register_range(0x06 + oscillator, value, 0, 4);
+void release(int destination, int value) {
+  store_range(0x06 + destination, value, 0, 4);
 }
 
 void rhythm_sound_toggle(int value) {
-  toggle_register_bit(0x0E, 5);
+  toggle_bit(0x0e, 5);
 }
 
 void rhythm_instruments(int value) {
-  store_register_range(0x0e, value, 0, 5);
+  store_range(0x0e, value, 0, 5);
 }
 
 void sustain_toggle(int oscillator) {
-  toggle_register_bit(0x20 + oscillator, 5);
+  toggle_bit(0x20 + oscillator, 5);
 }
 
 void key_toggle(int oscillator) {
-  toggle_register_bit(0x20 + oscillator, 4);
+  toggle_bit(0x20 + oscillator, 4);
 }
 
 void octave(int oscillator, int value) {
-  store_register_range(0x10 + oscillator, value, 5, 3);
+  store_range(0x10 + oscillator, value, 5, 3);
 }
 
 void instrument(int oscillator, int value) {
-  store_register_range(0x30 + oscillator, value, 4, 4);
+  store_range(0x30 + oscillator, value, 4, 4);
 }
 
 void volume(int oscillator, int value) {
-  store_register_range(0x30 + oscillator, value, 0, 4);
+  store_range(0x30 + oscillator, value, 0, 4);
 }
 
 void key(int oscillator, int key_number) {

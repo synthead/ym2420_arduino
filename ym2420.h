@@ -1,6 +1,9 @@
 #ifndef YM2420_H
 #define YM2420_H
 
+#define MODULATION 0
+#define CARRIER 1
+
 #define MULTI_SAMPLE_WAVE_RANGE 15
 #define LEVEL_KEY_SCALE_RANGE 15
 #define MODULATION_INDEX_RANGE 63
