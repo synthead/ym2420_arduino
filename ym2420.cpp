@@ -82,25 +82,23 @@ void ym2420_write_changes() {
   register_changes_sum = 0;
 }
 
-void add_register_change(int address) {
-  register_changes[register_changes_sum] = address;
-  register_changes_sum++;
-}
-
-void store_register_byte(int address, int data) {
-  registers[address] = data;
-  add_register_change(address);
+void store_register_byte(int address, int new_value) {
+  if (registers[address] != new_value) {
+    registers[address] = new_value;
+    register_changes[register_changes_sum] = address;
+    register_changes_sum++;
+  }
 }
 
 void toggle_register_bit(int address, int bit) {
-  registers[address] ^= 1 << bit;
-  add_register_change(address);
+  int new_value = registers[address] ^ 1 << bit;
+  store_register_byte(address, new_value);
 }
 
-void store_register_range(int address, int data, int position, int length) {
+void store_register_range(int address, int value, int position, int length) {
   int mask = ((1 << length) - 1) << position;
-  registers[address] = (registers[address] & ~mask) | (data << position & mask);
-  add_register_change(address);
+  int new_value = (registers[address] & ~mask) | (value << position & mask);
+  store_register_byte(address, new_value);
 }
 
 void toggle_oscillator(int oscillator) {
