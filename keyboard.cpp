@@ -37,7 +37,7 @@ void scan_keyboard() {
           if (active_oscillators[check_oscillator] == 0) {
             f_number_key(
                 check_oscillator, row * 6 + column + FIRST_KEY_NUMBER);
-            key(check_oscillator, 1);
+            key(check_oscillator, ON);
 
             last_oscillator = check_oscillator;
             active_oscillators[check_oscillator] = 1;
@@ -47,7 +47,7 @@ void scan_keyboard() {
           }
         }
       } else if (active_keys[column][row] != -1 && ! key_on) {
-        key(active_keys[column][row], 0);
+        key(active_keys[column][row], OFF);
 
         active_oscillators[active_keys[column][row]] = 0;
         active_keys[column][row] = -1;
