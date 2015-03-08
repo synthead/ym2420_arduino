@@ -4,7 +4,7 @@
 #include <SPI.h>
 
 #define MCP23S17_HW_ADDRESS 0b001
-#define FIRST_KEY_NUMBER 40
+#define FIRST_KEY_NUMBER 46
 #define OSCILLATORS 8
 
 int active_oscillators[OSCILLATORS] = {0};
