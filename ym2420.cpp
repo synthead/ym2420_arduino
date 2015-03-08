@@ -90,8 +90,9 @@ void store_byte(int address, int new_value) {
   }
 }
 
-void toggle_bit(int address, int bit) {
-  int new_value = registers[address] ^ 1 << bit;
+void store_bit(int address, int value, int bit) {
+  int new_value = registers[address] ^ (
+      -value ^ registers[address]) & (1 << bit);
   store_byte(address, new_value);
 }
 
@@ -101,81 +102,72 @@ void store_range(int address, int value, int position, int length) {
   store_byte(address, new_value);
 }
 
-void toggle_oscillator(int oscillator) {
-  toggle_bit(0x20 + oscillator, 4);
+void amplitude_modulation(int carrier_or_modulation, int value) {
+  store_bit(0x00 + carrier_or_modulation, value, 7);
 }
 
-void f_number(int oscillator, int f_number) {
-  store_range(0x20 + oscillator, f_number & 0b000001111, 0, 4);
-  store_range(0x10 + oscillator, f_number >> 4, 0, 5);
+void vibrato(int carrier_or_modulation, int value) {
+  store_bit(0x00 + carrier_or_modulation, value, 6);
 }
 
-void am_toggle(int destination) {
-  toggle_bit(0x00 + destination, 7);
+void sustained_sound(int carrier_or_modulation, int value) {
+  store_bit(0x00 + carrier_or_modulation, value, 5);
 }
 
-void vibrato_toggle(int destination) {
-  toggle_bit(0x00 + destination, 6);
+void rate_key_scale(int carrier_or_modulation, int value) {
+  store_bit(0x00 + carrier_or_modulation, value, 4);
 }
 
-void sustained_sound_toggle(int destination) {
-  toggle_bit(0x00 + destination, 5);
+void multi_sample_wave(int carrier_or_modulation, int value) {
+  store_range(0x00 + carrier_or_modulation, value, 0, 4);
 }
 
-void rate_key_scale_toggle(int destination) {
-  toggle_bit(0x00 + destination, 4);
-}
-
-void multi_sample_wave(int destination, int value) {
-  store_range(0x00 + destination, value, 0, 4);
-}
-
-void level_key_scale(int destination, int value) {
-  store_range(0x02 + destination, value, 6, 2);
+void level_key_scale(int carrier_or_modulation, int value) {
+  store_range(0x02 + carrier_or_modulation, value, 6, 2);
 }
 
 void modulation_index(int value) {
   store_range(0x02, value, 0, 6);
 }
 
-void wave_distortion(int destination) {
-  toggle_bit(0x03, 3 + destination);
+void wave_distortion(int carrier_or_modulation, int value) {
+  store_bit(0x03, value, 3 + carrier_or_modulation);
 }
 
 void fm_feedback_constant(int value) {
   store_range(0x03, value, 0, 3);
 }
 
-void attack(int destination, int value) {
-  store_range(0x04 + destination, value, 4, 4);
+void attack_rate(int carrier_or_modulation, int value) {
+  store_range(0x04 + carrier_or_modulation, value, 4, 4);
 }
 
-void decay(int destination, int value) {
-  store_range(0x04 + destination, value, 0, 4);
+void decay_rate(int carrier_or_modulation, int value) {
+  store_range(0x04 + carrier_or_modulation, value, 0, 4);
 }
 
-void sustain(int destination, int value) {
-  store_range(0x06 + destination, value, 4, 4);
+void sustain_rate(int carrier_or_modulation, int value) {
+  store_range(0x06 + carrier_or_modulation, value, 4, 4);
 }
 
-void release(int destination, int value) {
-  store_range(0x06 + destination, value, 0, 4);
+void release_rate(int carrier_or_modulation, int value) {
+  store_range(0x06 + carrier_or_modulation, value, 0, 4);
 }
 
-void rhythm_sound_toggle(int value) {
-  toggle_bit(0x0e, 5);
+void rhythm_sound(int value) {
+  store_bit(0x0e, value, 5);
 }
 
 void rhythm_instruments(int value) {
   store_range(0x0e, value, 0, 5);
 }
 
-void sustain_toggle(int oscillator) {
-  toggle_bit(0x20 + oscillator, 5);
+void sustain(int oscillator, int value) {
+  store_bit(0x20 + oscillator, value, 5);
 }
 
-void key_toggle(int oscillator) {
-  toggle_bit(0x20 + oscillator, 4);
+void key(int oscillator, int value) {
+  store_bit(0x20 + oscillator, value, 4);
 }
 
 void octave(int oscillator, int value) {
@@ -190,7 +182,12 @@ void volume(int oscillator, int value) {
   store_range(0x30 + oscillator, value, 0, 4);
 }
 
-void key(int oscillator, int key_number) {
+void f_number(int oscillator, int f_number) {
+  store_range(0x20 + oscillator, f_number & 0b000001111, 0, 4);
+  store_range(0x10 + oscillator, f_number >> 4, 0, 5);
+}
+
+void f_number_key(int oscillator, int key_number) {
   int octave_number = (int)f_numbers[key_number] / 512;
   int f_number_int = f_numbers[key_number] / pow(2, octave_number);
 
