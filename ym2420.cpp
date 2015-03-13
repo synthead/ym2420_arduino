@@ -1,5 +1,6 @@
 #include "ym2420.h"
 #include "mcp23s17.h"
+#include "lcd.h"
 #include <Arduino.h>
 
 #define MCP23S17_HW_ADDRESS 0b000
@@ -14,6 +15,8 @@
 int registers[0x38] = {0};
 int register_changes[REGISTER_CHANGES_MAX];
 int register_changes_sum = 0;
+
+const char* car_or_mod_text[2] = {"Modulation", "Carrier"};
 
 // Generate this data by compiling the blub below like so:
 // $ gcc foo.c -o foo -lm -std=c99
@@ -82,84 +85,137 @@ void ym2420_write_changes() {
   register_changes_sum = 0;
 }
 
-void store_byte(int address, int new_value) {
+bool store_byte(int address, int new_value) {
   if (registers[address] != new_value) {
     registers[address] = new_value;
     register_changes[register_changes_sum] = address;
     register_changes_sum++;
+    return true;
+  } else {
+    return false;
   }
 }
 
-void store_bit(int address, int value, int bit) {
+bool store_bit(int address, int value, int bit) {
   int new_value = registers[address] ^ (
       -value ^ registers[address]) & (1 << bit);
-  store_byte(address, new_value);
+  return store_byte(address, new_value);
 }
 
-void store_range(int address, int value, int position, int length) {
+bool store_range(int address, int value, int position, int length) {
   int mask = ((1 << length) - 1) << position;
   int new_value = (registers[address] & ~mask) | (value << position & mask);
-  store_byte(address, new_value);
+  return store_byte(address, new_value);
 }
 
-void amplitude_modulation(int carrier_or_modulation, int value) {
-  store_bit(0x00 + carrier_or_modulation, value, 7);
+void amplitude_modulation(int car_or_mod, int value) {
+  if(store_bit(car_or_mod, value, 7)) {
+    lcd_print_digital_control(
+        "Amplitude Modltn", car_or_mod_text[car_or_mod], value);
+  }
 }
 
-void vibrato(int carrier_or_modulation, int value) {
-  store_bit(0x00 + carrier_or_modulation, value, 6);
+void vibrato(int car_or_mod, int value) {
+  if(store_bit(car_or_mod, value, 6)) {
+    lcd_print_digital_control("Vibrato", car_or_mod_text[car_or_mod], value);
+  }
 }
 
-void sustained_sound(int carrier_or_modulation, int value) {
-  store_bit(0x00 + carrier_or_modulation, value, 5);
+void sustained_sound(int car_or_mod, int value) {
+  if(store_bit(car_or_mod, value, 5)) {
+    lcd_print_digital_control(
+        "Sustained sound", car_or_mod_text[car_or_mod], value);
+  }
 }
 
-void rate_key_scale(int carrier_or_modulation, int value) {
-  store_bit(0x00 + carrier_or_modulation, value, 4);
+void rate_key_scale(int car_or_mod, int value) {
+  if(store_bit(car_or_mod, value, 4)) {
+    lcd_print_digital_control(
+        "RATE key scale", car_or_mod_text[car_or_mod], value);
+  }
 }
 
-void multi_sample_wave(int carrier_or_modulation, int value) {
-  store_range(0x00 + carrier_or_modulation, value, 0, 4);
+void multi_sample_wave(int car_or_mod, int value) {
+  if(store_range(car_or_mod, value, 0, 4)) {
+    lcd_print_analog_control(
+        "Multi-smple wave", car_or_mod_text[car_or_mod], value,
+        RANGE_MULTI_SAMPLE_WAVE);
+  }
 }
 
-void level_key_scale(int carrier_or_modulation, int value) {
-  store_range(0x02 + carrier_or_modulation, value, 6, 2);
+void level_key_scale(int car_or_mod, int value) {
+  int inverted_value = RANGE_LEVEL_KEY_SCALE - value;
+  if(store_range(0x02 + car_or_mod, inverted_value, 6, 2)) {
+    lcd_print_analog_control(
+        "LEVEL key scale", car_or_mod_text[car_or_mod], value,
+        RANGE_LEVEL_KEY_SCALE);
+  }
 }
 
 void modulation_index(int value) {
-  store_range(0x02, value, 0, 6);
+  int inverted_value = RANGE_MODULATION_INDEX - value;
+  if(store_range(0x02, inverted_value, 0, 6)) {
+    lcd_print_analog_control(
+        "Modulation index", "", value, RANGE_MODULATION_INDEX);
+  }
 }
 
-void wave_distortion(int carrier_or_modulation, int value) {
-  store_bit(0x03, value, 3 + carrier_or_modulation);
+void wave_distortion(int car_or_mod, int value) {
+  if(store_bit(0x03, value, 3 + car_or_mod)) {
+    lcd_print_digital_control(
+        "Wave distortion", car_or_mod_text[car_or_mod], value);
+  }
 }
 
 void fm_feedback_constant(int value) {
-  store_range(0x03, value, 0, 3);
+  if(store_range(0x03, value, 0, 3)) {
+    lcd_print_analog_control(
+        "FM feedback", "", value, RANGE_FM_FEEDBACK_CONSTANT);
+  }
 }
 
-void attack_rate(int carrier_or_modulation, int value) {
-  store_range(0x04 + carrier_or_modulation, value, 4, 4);
+void attack_rate(int car_or_mod, int value) {
+  int inverted_value = RANGE_MODULATION_INDEX - value;
+  if(store_range(0x04 + car_or_mod, inverted_value, 4, 4)) {
+    lcd_print_analog_control(
+        "Attack", car_or_mod_text[car_or_mod], value, RANGE_ATTACK_RATE);
+  }
 }
 
-void decay_rate(int carrier_or_modulation, int value) {
-  store_range(0x04 + carrier_or_modulation, value, 0, 4);
+void decay_rate(int car_or_mod, int value) {
+  int inverted_value = RANGE_MODULATION_INDEX - value;
+  if(store_range(0x04 + car_or_mod, inverted_value, 0, 4)) {
+    lcd_print_analog_control(
+        "Decay", car_or_mod_text[car_or_mod], value, RANGE_DECAY_RATE);
+  }
 }
 
-void sustain_rate(int carrier_or_modulation, int value) {
-  store_range(0x06 + carrier_or_modulation, value, 4, 4);
+void sustain_rate(int car_or_mod, int value) {
+  int inverted_value = RANGE_MODULATION_INDEX - value;
+  if(store_range(0x06 + car_or_mod, inverted_value, 4, 4)) {
+    lcd_print_analog_control(
+        "Sustain", car_or_mod_text[car_or_mod], value, RANGE_SUSTAIN_RATE);
+  }
 }
 
-void release_rate(int carrier_or_modulation, int value) {
-  store_range(0x06 + carrier_or_modulation, value, 0, 4);
+void release_rate(int car_or_mod, int value) {
+  int inverted_value = RANGE_MODULATION_INDEX - value;
+  if(store_range(0x06 + car_or_mod, inverted_value, 0, 4)) {
+    lcd_print_analog_control(
+        "Release", car_or_mod_text[car_or_mod], value, RANGE_RELEASE_RATE);
+  }
 }
 
 void rhythm_sound(int value) {
-  store_bit(0x0e, value, 5);
+  if(store_bit(0x0e, value, 5)) {
+    lcd_print_digital_control("Rhythm sound", "", value);
+  }
 }
 
 void rhythm_instruments(int value) {
-  store_range(0x0e, value, 0, 5);
+  if(store_range(0x0e, value, 0, 5)) {
+    lcd_print_digital_control("Rhythm instrmnts", "", value);
+  }
 }
 
 void sustain(int oscillator, int value) {

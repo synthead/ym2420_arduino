@@ -7,6 +7,8 @@
 #define LCD_RS 0b00000001
 #define LCD_E 0b00000010
 
+const char* digital_control_text[2] = {"Off", " On"};
+
 void write_command(int command) {
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, LCD_E);
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x13, command);
@@ -21,13 +23,44 @@ void write_character(char character) {
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, LCD_E | LCD_RS);
 }
 
-void lcd_print(int column, int row, const char* text) {
-  write_command(0x80 + 0x40 * row + column);
-
+void lcd_print(const char* text) {
   int text_length = strlen(text);
   for (int cell = 0; cell < text_length; cell++) {
     write_character(text[cell]);
   }
+}
+
+void lcd_print_position(int column, int row, const char* text) {
+  write_command(0x80 + 0x40 * row + column);
+  lcd_print(text);
+}
+
+void lcd_print_analog_control(
+    const char* line1, const char* line2, int value, int range) {
+  char line1_padded[16];
+  sprintf(line1_padded, "%-16s", line1);
+  lcd_print_position(0, 0, line1_padded);
+
+  char line2_padded[12];
+  sprintf(line2_padded, "%-12s", line2);
+  lcd_print_position(0, 1, line2_padded);
+
+  char percent_text[4];
+  sprintf(percent_text, "%3d%%", value * 100 / range);
+  lcd_print(percent_text);
+}
+
+void lcd_print_digital_control(
+    const char* line1, const char* line2, int value) {
+  char line1_padded[16];
+  sprintf(line1_padded, "%-16s", line1);
+  lcd_print_position(0, 0, line1_padded);
+
+  char line2_padded[13];
+  sprintf(line2_padded, "%-13s", line2);
+  lcd_print_position(0, 1, line2_padded);
+
+  lcd_print(digital_control_text[value]);
 }
 
 void lcd_setup() {
@@ -36,4 +69,7 @@ void lcd_setup() {
 
   write_command(0x38);
   write_command(0x0C);
+
+  lcd_print_position(0, 0, "Synthead YM2420");
+  lcd_print_position(0, 1, "SW version 0.1");
 }

@@ -9,7 +9,7 @@ void mcp3008_setup(int chip_select) {
   digitalWrite(chip_select, HIGH);
 };
 
-int mcp3008_read(int chip_select, int channel, int range, int inverse) {
+int mcp3008_read(int chip_select, int channel, int range) {
   long sample_sum = 0;
 
   for (int sample = 0; sample < MCP3008_SAMPLES; sample++) {
@@ -23,11 +23,5 @@ int mcp3008_read(int chip_select, int channel, int range, int inverse) {
     digitalWrite(chip_select, HIGH);
   }
 
-  int sample_average = (sample_sum / MCP3008_SAMPLES) * range / 1023;
-
-  if (inverse) {
-    return range - sample_average;
-  } else {
-    return sample_average;
-  }
+  return (sample_sum / MCP3008_SAMPLES) * range / 1023;
 }

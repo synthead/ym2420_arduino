@@ -14,8 +14,8 @@ void setup() {
   ym2420_reset();
   setup_keyboard(INSTRUMENT_ORIGINAL);
 
-  lcd_print(0, 0, "Synthead YM2420");
-  lcd_print(0, 1, "SW version 0.1");
+  // lcd_print_position(0, 0, "Synthead YM2420");
+  // lcd_print_position(0, 1, "SW version 0.1");
 }
 
 void loop() {
