@@ -249,7 +249,7 @@ void lcd_print_digital_control(digital_control control) {
 }
 
 void apply_analog_controls(bool print_to_lcd) {
-  for (unsigned int control = 0; control < ANALOG_CONTROL_COUNT; control++) {
+  for (uint8_t control = 0; control < ANALOG_CONTROL_COUNT; control++) {
     unsigned int value = mcp3008_read(
         analog_controls[control].chip_select,
         analog_controls[control].pin,
@@ -269,7 +269,7 @@ void apply_analog_controls(bool print_to_lcd) {
 void apply_digital_controls(bool print_to_lcd) {
   uint8_t values = mcp23s17_read(MCP23S17_HW_ADDRESS, 0x13);
 
-  for (unsigned int control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
+  for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
     bool value = (values >> digital_controls[control].pin) & 1;
 
     if (value != digital_controls[control].value) {
