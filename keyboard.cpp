@@ -16,7 +16,8 @@ uint8_t last_oscillator = 0;
 
 void setup_keyboard(uint8_t instrument_number) {
   for (uint8_t oscillator = 0; oscillator < OSCILLATORS; oscillator++) {
-    instrument(oscillator, instrument_number);
+    ym2420_write_range(
+        ym2420_oscillators[oscillator].instrument, instrument_number);
   }
 
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x01, 0x00);
@@ -35,9 +36,10 @@ void scan_keyboard() {
               oscillator + last_oscillator + 1) % OSCILLATORS;
 
           if (active_oscillators[check_oscillator] == false) {
-            f_number_key(
+            ym2420_write_f_number_key(
                 check_oscillator, row * 6 + column + FIRST_KEY_NUMBER);
-            key(check_oscillator, true);
+            ym2420_write_bit(
+                ym2420_oscillators[check_oscillator].key, true);
 
             last_oscillator = check_oscillator;
             active_oscillators[check_oscillator] = true;
@@ -47,8 +49,8 @@ void scan_keyboard() {
           }
         }
       } else if (active_keys[column][row] != -1 && ! key_on) {
-        key(active_keys[column][row], false);
-
+        ym2420_write_bit(
+            ym2420_oscillators[active_keys[column][row]].key, false);
         active_oscillators[active_keys[column][row]] = false;
         active_keys[column][row] = -1;
       }
