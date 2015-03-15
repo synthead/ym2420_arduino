@@ -11,27 +11,27 @@
 #define ANALOG_CONTROL_COUNT 14
 #define DIGITAL_CONTROL_COUNT 8
 
-typedef struct {
+struct analog_change {
   uint8_t chip_select;
   uint8_t pin;
-} analog_change;
+};
 
-typedef struct {
+struct analog_control {
   const uint8_t chip_select;
   const uint8_t pin;
   ym2420_range_t ym2420_range;
   const char* line1;
   const char* line2;
   uint8_t value;
-} analog_control;
+};
 
-typedef struct {
+struct digital_control {
   const uint8_t pin;
   ym2420_bit_t ym2420_bit;
   const char* line1;
   const char* line2;
   bool value;
-} digital_control;
+};
 
 analog_change last_analog_change = {
   .chip_select = -1,
