@@ -10,7 +10,7 @@ void mcp23s17_setup() {
   mcp23s17_write(0b000, 0x0a, 0b00001000);  // Enable IOCON.HAEN.
 }
 
-void mcp23s17_write(int hw_address, int address, int data) {
+void mcp23s17_write(uint8_t hw_address, uint8_t address, uint8_t data) {
   digitalWrite(MCP23S17_CS, LOW);
 
   SPI.transfer(0b01000000 | hw_address << 1);
@@ -20,14 +20,15 @@ void mcp23s17_write(int hw_address, int address, int data) {
   digitalWrite(MCP23S17_CS, HIGH);
 }
 
-int mcp23s17_read(int hw_address, int address) {
+uint8_t mcp23s17_read(uint8_t hw_address, uint8_t address) {
   digitalWrite(MCP23S17_CS, LOW);
 
   SPI.transfer(0b01000001 | hw_address << 1);
   SPI.transfer(address);
-  int slave = SPI.transfer(0);
+  uint8_t value = SPI.transfer(0);
 
   digitalWrite(MCP23S17_CS, HIGH);
-  return slave;
+
+  return value;
 }
 

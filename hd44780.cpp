@@ -7,7 +7,7 @@
 #define LCD_RS 0b00000001
 #define LCD_E 0b00000010
 
-void write_command(int command) {
+void write_command(uint8_t command) {
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, LCD_E);
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x13, command);
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, 0);
@@ -22,13 +22,13 @@ void write_character(char character) {
 }
 
 void lcd_print(const char* text) {
-  int text_length = strlen(text);
-  for (int cell = 0; cell < text_length; cell++) {
+  uint8_t text_length = strlen(text);
+  for (uint8_t cell = 0; cell < text_length; cell++) {
     write_character(text[cell]);
   }
 }
 
-void lcd_print_position(int column, int row, const char* text) {
+void lcd_print_position(uint8_t column, uint8_t row, const char* text) {
   write_command(0x80 + 0x40 * row + column);
   lcd_print(text);
 }
@@ -40,6 +40,6 @@ void hd44780_setup() {
   write_command(0x38);
   write_command(0x0C);
 
-  lcd_print_position(0, 0, "Synthead YM2420");
-  lcd_print_position(0, 1, "SW version 0.1");
+  lcd_print_position(0, 0, "Synthead YM2420 ");
+  lcd_print_position(0, 1, "SW version 0.1  ");
 }

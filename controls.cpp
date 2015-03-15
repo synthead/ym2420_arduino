@@ -11,31 +11,29 @@
 #define ANALOG_CONTROL_COUNT 14
 #define DIGITAL_CONTROL_COUNT 8
 
-const char* digital_control_text[2] = {"Off", " On"};
-
 struct analog_control {
-  int chip_select;
-  int analog_pin;
-  int range;
-  void (*callback)(int);
+  const uint8_t chip_select;
+  const uint8_t analog_pin;
+  const uint8_t range;
+  void (*callback)(uint8_t);
   const char* line1;
   const char* line2;
-  int value;
+  uint8_t value;
 };
 
 struct digital_control {
-  int bit;
-  void (*callback)(int);
+  const uint8_t bit;
+  void (*callback)(bool);
   const char* line1;
   const char* line2;
-  int value;
+  bool value;
 };
 
 struct analog_control analog_controls[ANALOG_CONTROL_COUNT] = {
     {.chip_select = MCP3008_0_CS,
      .analog_pin = 0,
      .range = RANGE_MULTI_SAMPLE_WAVE,
-     .callback = rate_key_scale_carrier,
+     .callback = multi_sample_wave_carrier,
      .line1 = "Multi-smple wave",
      .line2 = "Carrier",
      .value = 0},
@@ -43,7 +41,7 @@ struct analog_control analog_controls[ANALOG_CONTROL_COUNT] = {
     {.chip_select = MCP3008_0_CS,
      .analog_pin = 1,
      .range = RANGE_MULTI_SAMPLE_WAVE,
-     .callback = rate_key_scale_modulation,
+     .callback = multi_sample_wave_modulation,
      .line1 = "Multi-smple wave",
      .line2 = "Modulation",
      .value = 0},
@@ -150,53 +148,54 @@ struct digital_control digital_controls[DIGITAL_CONTROL_COUNT] = {
      .callback = amplitude_modulation_carrier,
      .line1 = "Amplitude Modltn",
      .line2 = "Carrier",
-     .value = 0},
+     .value = false},
 
     {.bit = 1,
      .callback = vibrato_carrier,
      .line1 = "Vibrato",
      .line2 = "Carrier",
-     .value = 0},
+     .value = false},
 
     {.bit = 2,
      .callback = wave_distortion_carrier,
      .line1 = "Wave distortion",
      .line2 = "Carrier",
-     .value = 0},
+     .value = false},
 
     {.bit = 3,
      .callback = rate_key_scale_carrier,
      .line1 = "RATE key scale",
      .line2 = "Carrier",
-     .value = 0},
+     .value = false},
 
     {.bit = 4,
      .callback = amplitude_modulation_modulation,
      .line1 = "Amplitude Modltn",
      .line2 = "Modulation",
-     .value = 0},
+     .value = false},
 
     {.bit = 5,
      .callback = vibrato_modulation,
      .line1 = "Vibrato",
      .line2 = "Modulation",
-     .value = 0},
+     .value = false},
 
     {.bit = 6,
      .callback = wave_distortion_modulation,
      .line1 = "Wave distortion",
      .line2 = "Modulation",
-     .value = 0},
+     .value = false},
 
     {.bit = 7,
      .callback = rate_key_scale_modulation,
      .line1 = "RATE key scale",
      .line2 = "Modulation",
-     .value = 0}
+     .value = false}
 };
 
 void lcd_print_analog_control(
-    const char* line1, const char* line2, int value, int range) {
+    const char* line1, const char* line2, unsigned int value,
+    unsigned int range) {
   char line1_padded[17];
   sprintf(line1_padded, "%-16s", line1);
   lcd_print_position(0, 0, line1_padded);
@@ -211,7 +210,7 @@ void lcd_print_analog_control(
 }
 
 void lcd_print_digital_control(
-    const char* line1, const char* line2, int value) {
+    const char* line1, const char* line2, bool value) {
   char line1_padded[17];
   sprintf(line1_padded, "%-16s", line1);
   lcd_print_position(0, 0, line1_padded);
@@ -220,12 +219,12 @@ void lcd_print_digital_control(
   sprintf(line2_padded, "%-13s", line2);
   lcd_print_position(0, 1, line2_padded);
 
-  lcd_print(digital_control_text[value]);
+  lcd_print(value ? "On " : "Off");
 }
 
-int apply_analog_controls(bool print_to_lcd) {
-  for (int control = 0; control < ANALOG_CONTROL_COUNT; control++) {
-    int value = mcp3008_read(
+void apply_analog_controls(bool print_to_lcd) {
+  for (unsigned int control = 0; control < ANALOG_CONTROL_COUNT; control++) {
+    unsigned int value = mcp3008_read(
         analog_controls[control].chip_select,
         analog_controls[control].analog_pin,
         analog_controls[control].range);
@@ -245,11 +244,11 @@ int apply_analog_controls(bool print_to_lcd) {
   }
 }
 
-int apply_digital_controls(bool print_to_lcd) {
-  int values = mcp23s17_read(MCP23S17_HW_ADDRESS, 0x13);
+void apply_digital_controls(bool print_to_lcd) {
+  uint8_t values = mcp23s17_read(MCP23S17_HW_ADDRESS, 0x13);
 
-  for (int control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
-    int value = (values >> digital_controls[control].bit) & 1;
+  for (unsigned int control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
+    bool value = (values >> digital_controls[control].bit) & 1;
 
     if (value != digital_controls[control].value) {
       digital_controls[control].value = value;

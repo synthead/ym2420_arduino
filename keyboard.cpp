@@ -7,15 +7,15 @@
 #define FIRST_KEY_NUMBER 46
 #define OSCILLATORS 8
 
-int active_oscillators[OSCILLATORS] = {0};
+uint8_t active_oscillators[OSCILLATORS] = {0};
 int active_keys[6][7] = {
     {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1},
     {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1},
     {-1, -1, -1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1, -1, -1}};
-int last_oscillator = 0;
+uint8_t last_oscillator = 0;
 
-void setup_keyboard(int instrument_number) {
-  for (int oscillator = 0; oscillator < OSCILLATORS; oscillator++) {
+void setup_keyboard(uint8_t instrument_number) {
+  for (uint8_t oscillator = 0; oscillator < OSCILLATORS; oscillator++) {
     instrument(oscillator, instrument_number);
   }
 
@@ -23,15 +23,15 @@ void setup_keyboard(int instrument_number) {
 }
 
 void scan_keyboard() {
-  for (int column = 0; column < 6; column++) {
+  for (uint8_t column = 0; column < 6; column++) {
     mcp23s17_write(MCP23S17_HW_ADDRESS, 0x13, 1 << column);
-    int keys = mcp23s17_read(MCP23S17_HW_ADDRESS, 0x12);
+    uint8_t keys = mcp23s17_read(MCP23S17_HW_ADDRESS, 0x12);
 
-    for (int row = 0; row < 7; row++) {
-      int key_on = (keys >> row) % 2;
+    for (uint8_t row = 0; row < 7; row++) {
+      bool key_on = (keys >> row) & 1;
       if (active_keys[column][row] == -1 && key_on) {
-        for (int oscillator = 0; oscillator < OSCILLATORS; oscillator++) {
-          int check_oscillator = (
+        for (uint8_t oscillator = 0; oscillator < OSCILLATORS; oscillator++) {
+          uint8_t check_oscillator = (
               oscillator + last_oscillator + 1) % OSCILLATORS;
 
           if (active_oscillators[check_oscillator] == false) {

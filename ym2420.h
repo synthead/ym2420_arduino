@@ -1,6 +1,8 @@
 #ifndef YM2420_H
 #define YM2420_H
 
+#include <stdint.h>  // For uint8_t.
+
 #define RANGE_MULTI_SAMPLE_WAVE 15
 #define RANGE_LEVEL_KEY_SCALE 3
 #define RANGE_MODULATION_INDEX 63
@@ -34,38 +36,38 @@ void ym2420_write_changes();
 void ym2420_setup();
 void ym2420_reset();
 
-void amplitude_modulation_carrier(int);
-void amplitude_modulation_modulation(int);
-void vibrato_carrier(int);
-void vibrato_modulation(int);
-void sustained_sound_carrier(int);
-void sustained_sound_modulation(int);
-void rate_key_scale_carrier(int);
-void rate_key_scale_modulation(int);
-void multi_sample_wave_carrier(int);
-void multi_sample_wave_modulation(int);
-void level_key_scale_carrier(int);
-void level_key_scale_modulation(int);
-void modulation_index(int);
-void wave_distortion_carrier(int);
-void wave_distortion_modulation(int);
-void fm_feedback_constant(int);
-void attack_rate_carrier(int);
-void decay_rate_carrier(int);
-void sustain_rate_carrier(int);
-void release_rate_carrier(int);
-void attack_rate_modulation(int);
-void decay_rate_modulation(int);
-void sustain_rate_modulation(int);
-void release_rate_modulation(int);
-void rhythm_sound(int);
-void rhythm_instruments(int);
-void sustain(int, int);
-void key(int, int);
-void octave(int, int);
-void instrument(int, int);
-void volume(int, int);
-void f_number(int, int);
-void f_number_key(int, int);
+void amplitude_modulation_carrier(bool);
+void amplitude_modulation_modulation(bool);
+void vibrato_carrier(bool);
+void vibrato_modulation(bool);
+void sustained_sound_carrier(bool);
+void sustained_sound_modulation(bool);
+void rate_key_scale_carrier(bool);
+void rate_key_scale_modulation(bool);
+void multi_sample_wave_carrier(uint8_t);
+void multi_sample_wave_modulation(uint8_t);
+void level_key_scale_carrier(uint8_t);
+void level_key_scale_modulation(uint8_t);
+void modulation_index(uint8_t);
+void wave_distortion_carrier(bool);
+void wave_distortion_modulation(bool);
+void fm_feedback_constant(uint8_t);
+void attack_rate_carrier(uint8_t);
+void decay_rate_carrier(uint8_t);
+void sustain_rate_carrier(uint8_t);
+void release_rate_carrier(uint8_t);
+void attack_rate_modulation(uint8_t);
+void decay_rate_modulation(uint8_t);
+void sustain_rate_modulation(uint8_t);
+void release_rate_modulation(uint8_t);
+void rhythm_sound(bool);
+void rhythm_instruments(uint8_t);
+void sustain(uint8_t, bool);
+void key(uint8_t, bool);
+void octave(uint8_t, uint8_t);
+void instrument(uint8_t, uint8_t);
+void volume(uint8_t, uint8_t);
+void f_number(uint8_t, unsigned int);
+void f_number_key(uint8_t, uint8_t);
 
 #endif

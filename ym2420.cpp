@@ -12,9 +12,9 @@
 #define REGISTER_CHANGES_MAX 100
 #define RESET_TIME 1000
 
-int registers[0x38] = {0};
-int register_changes[REGISTER_CHANGES_MAX];
-int register_changes_sum = 0;
+uint8_t registers[0x38] = {0};
+uint8_t register_changes[REGISTER_CHANGES_MAX];
+uint8_t register_changes_sum = 0;
 
 // Generate this data by compiling the blub below like so:
 // $ gcc foo.c -o foo -lm -std=c99
@@ -67,7 +67,7 @@ void ym2420_reset() {
 }
 
 void ym2420_write_changes() {
-  for (int change = 0; change < register_changes_sum; change++) {
+  for (uint8_t change = 0; change < register_changes_sum; change++) {
     mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, register_changes[change]);
     digitalWrite(YM_A0, 0);
     digitalWrite(YM_CS, 0);
@@ -83,168 +83,168 @@ void ym2420_write_changes() {
   register_changes_sum = 0;
 }
 
-void store_byte(int address, int new_value) {
+void store_byte(uint8_t address, uint8_t new_value) {
   registers[address] = new_value;
   register_changes[register_changes_sum] = address;
   register_changes_sum++;
 }
 
-void store_bit(int address, int value, int bit) {
-  int new_value = registers[address] ^ (
+void store_bit(uint8_t address, bool value, uint8_t bit) {
+  uint8_t new_value = registers[address] ^ (
       -value ^ registers[address]) & (1 << bit);
   store_byte(address, new_value);
 }
 
-void store_range(int address, int value, int position, int length) {
-  int mask = ((1 << length) - 1) << position;
-  int new_value = (registers[address] & ~mask) | (value << position & mask);
+void store_range(
+    uint8_t address, uint8_t value, uint8_t position, uint8_t length) {
+  uint8_t mask = ((1 << length) - 1) << position;
+  uint8_t new_value = (registers[address] & ~mask) | (value << position & mask);
   store_byte(address, new_value);
 }
 
-void amplitude_modulation_carrier(int value) {
+void amplitude_modulation_carrier(bool value) {
   store_bit(0x00, value, 7);
 }
 
-void amplitude_modulation_modulation(int value) {
+void amplitude_modulation_modulation(bool value) {
   store_bit(0x01, value, 7);
 }
 
-void vibrato_carrier(int value) {
+void vibrato_carrier(bool value) {
   store_bit(0x00, value, 6);
 }
 
-void vibrato_modulation(int value) {
+void vibrato_modulation(bool value) {
   store_bit(0x01, value, 6);
 }
 
-void sustained_sound_carrier(int value) {
+void sustained_sound_carrier(bool value) {
   store_bit(0x00, value, 5);
 }
 
-void sustained_sound_modulation(int value) {
+void sustained_sound_modulation(bool value) {
   store_bit(0x01, value, 5);
 }
 
-void rate_key_scale_carrier(int value) {
+void rate_key_scale_carrier(bool value) {
   store_bit(0x00, value, 4);
 }
 
-void rate_key_scale_modulation(int value) {
+void rate_key_scale_modulation(bool value) {
   store_bit(0x01, value, 4);
 }
 
-void multi_sample_wave_carrier(int value) {
-  lcd_print_position(0, 0, "foo");
+void multi_sample_wave_carrier(uint8_t value) {
   store_range(0x00, value, 0, 4);
 }
 
-void multi_sample_wave_modulation(int value) {
+void multi_sample_wave_modulation(uint8_t value) {
   store_range(0x01, value, 0, 4);
 }
 
-void level_key_scale_carrier(int value) {
-  int inverted_value = RANGE_LEVEL_KEY_SCALE - value;
-  store_range(0x02, inverted_value, 6, 2);
+void level_key_scale_carrier(uint8_t value) {
+  value = RANGE_LEVEL_KEY_SCALE - value;
+  store_range(0x02, value, 6, 2);
 }
 
-void level_key_scale_modulation(int value) {
-  int inverted_value = RANGE_LEVEL_KEY_SCALE - value;
-  store_range(0x03, inverted_value, 6, 2);
+void level_key_scale_modulation(uint8_t value) {
+  value = RANGE_LEVEL_KEY_SCALE - value;
+  store_range(0x03, value, 6, 2);
 }
 
-void modulation_index(int value) {
-  int inverted_value = RANGE_MODULATION_INDEX - value;
-  store_range(0x02, inverted_value, 0, 6);
+void modulation_index(uint8_t value) {
+  value = RANGE_MODULATION_INDEX - value;
+  store_range(0x02, value, 0, 6);
 }
 
-void wave_distortion_carrier(int value) {
+void wave_distortion_carrier(bool value) {
   store_bit(0x03, value, 3);
 }
 
-void wave_distortion_modulation(int value) {
+void wave_distortion_modulation(bool value) {
   store_bit(0x03, value, 4);
 }
 
-void fm_feedback_constant(int value) {
+void fm_feedback_constant(uint8_t value) {
   store_range(0x03, value, 0, 3);
 }
 
-void attack_rate_carrier(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x04, inverted_value, 4, 4);
+void attack_rate_carrier(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x04, value, 4, 4);
 }
 
-void decay_rate_carrier(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x04, inverted_value, 0, 4);
+void decay_rate_carrier(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x04, value, 0, 4);
 }
 
-void sustain_rate_carrier(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x06, inverted_value, 4, 4);
+void sustain_rate_carrier(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x06, value, 4, 4);
 }
 
-void release_rate_carrier(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x06, inverted_value, 0, 4);
+void release_rate_carrier(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x06, value, 0, 4);
 }
 
-void attack_rate_modulation(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x05, inverted_value, 4, 4);
+void attack_rate_modulation(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x05, value, 4, 4);
 }
 
-void decay_rate_modulation(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x05, inverted_value, 0, 4);
+void decay_rate_modulation(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x05, value, 0, 4);
 }
 
-void sustain_rate_modulation(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x07, inverted_value, 4, 4);
+void sustain_rate_modulation(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x07, value, 4, 4);
 }
 
-void release_rate_modulation(int value) {
-  int inverted_value = RANGE_ADSR_RATE - value;
-  store_range(0x07, inverted_value, 0, 4);
+void release_rate_modulation(uint8_t value) {
+  value = RANGE_ADSR_RATE - value;
+  store_range(0x07, value, 0, 4);
 }
 
-void rhythm_sound(int value) {
+void rhythm_sound(bool value) {
   store_bit(0x0e, value, 5);
 }
 
-void rhythm_instruments(int value) {
+void rhythm_instruments(uint8_t value) {
   store_range(0x0e, value, 0, 5);
 }
 
-void sustain(int oscillator, int value) {
+void sustain(uint8_t oscillator, bool value) {
   store_bit(0x20 + oscillator, value, 5);
 }
 
-void key(int oscillator, int value) {
+void key(uint8_t oscillator, bool value) {
   store_bit(0x20 + oscillator, value, 4);
 }
 
-void octave(int oscillator, int value) {
+void octave(uint8_t oscillator, uint8_t value) {
   store_range(0x10 + oscillator, value, 5, 3);
 }
 
-void instrument(int oscillator, int value) {
+void instrument(uint8_t oscillator, uint8_t value) {
   store_range(0x30 + oscillator, value, 4, 4);
 }
 
-void volume(int oscillator, int value) {
+void volume(uint8_t oscillator, uint8_t value) {
   store_range(0x30 + oscillator, value, 0, 4);
 }
 
-void f_number(int oscillator, int f_number) {
+void f_number(uint8_t oscillator, unsigned int f_number) {
   store_range(0x20 + oscillator, f_number & 0b000001111, 0, 4);
   store_range(0x10 + oscillator, f_number >> 4, 0, 5);
 }
 
-void f_number_key(int oscillator, int key_number) {
-  int octave_number = (int)f_numbers[key_number] / 512;
-  int f_number_int = f_numbers[key_number] / pow(2, octave_number);
+void f_number_key(uint8_t oscillator, uint8_t key_number) {
+  uint8_t octave_number = (int)f_numbers[key_number] / 512;
+  unsigned int f_number_int = f_numbers[key_number] / pow(2, octave_number);
 
   octave(oscillator, octave_number + 2);
   f_number(oscillator, f_number_int);
