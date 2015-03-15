@@ -1,4 +1,4 @@
-#include "lcd.h"
+#include "hd44780.h"
 #include "mcp23s17.h"
 #include <Arduino.h>
 
@@ -6,8 +6,6 @@
 
 #define LCD_RS 0b00000001
 #define LCD_E 0b00000010
-
-const char* digital_control_text[2] = {"Off", " On"};
 
 void write_command(int command) {
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, LCD_E);
@@ -35,35 +33,7 @@ void lcd_print_position(int column, int row, const char* text) {
   lcd_print(text);
 }
 
-void lcd_print_analog_control(
-    const char* line1, const char* line2, int value, int range) {
-  char line1_padded[16];
-  sprintf(line1_padded, "%-16s", line1);
-  lcd_print_position(0, 0, line1_padded);
-
-  char line2_padded[12];
-  sprintf(line2_padded, "%-12s", line2);
-  lcd_print_position(0, 1, line2_padded);
-
-  char percent_text[4];
-  sprintf(percent_text, "%3d%%", value * 100 / range);
-  lcd_print(percent_text);
-}
-
-void lcd_print_digital_control(
-    const char* line1, const char* line2, int value) {
-  char line1_padded[16];
-  sprintf(line1_padded, "%-16s", line1);
-  lcd_print_position(0, 0, line1_padded);
-
-  char line2_padded[13];
-  sprintf(line2_padded, "%-13s", line2);
-  lcd_print_position(0, 1, line2_padded);
-
-  lcd_print(digital_control_text[value]);
-}
-
-void lcd_setup() {
+void hd44780_setup() {
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x00, 0x00);
   mcp23s17_write(MCP23S17_HW_ADDRESS, 0x01, 0x00);
 

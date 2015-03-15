@@ -34,22 +34,22 @@ void scan_keyboard() {
           int check_oscillator = (
               oscillator + last_oscillator + 1) % OSCILLATORS;
 
-          if (active_oscillators[check_oscillator] == 0) {
+          if (active_oscillators[check_oscillator] == false) {
             f_number_key(
                 check_oscillator, row * 6 + column + FIRST_KEY_NUMBER);
-            key(check_oscillator, ON);
+            key(check_oscillator, true);
 
             last_oscillator = check_oscillator;
-            active_oscillators[check_oscillator] = 1;
+            active_oscillators[check_oscillator] = true;
             active_keys[column][row] = check_oscillator;
 
             break;
           }
         }
       } else if (active_keys[column][row] != -1 && ! key_on) {
-        key(active_keys[column][row], OFF);
+        key(active_keys[column][row], false);
 
-        active_oscillators[active_keys[column][row]] = 0;
+        active_oscillators[active_keys[column][row]] = false;
         active_keys[column][row] = -1;
       }
     }

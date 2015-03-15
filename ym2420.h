@@ -1,20 +1,11 @@
 #ifndef YM2420_H
 #define YM2420_H
 
-#define MODULATION 0
-#define CARRIER 1
-
-#define OFF 0
-#define ON 1
-
 #define RANGE_MULTI_SAMPLE_WAVE 15
 #define RANGE_LEVEL_KEY_SCALE 3
 #define RANGE_MODULATION_INDEX 63
 #define RANGE_FM_FEEDBACK_CONSTANT 7
-#define RANGE_ATTACK_RATE 15
-#define RANGE_DECAY_RATE 15
-#define RANGE_SUSTAIN_RATE 15
-#define RANGE_RELEASE_RATE 15
+#define RANGE_ADSR_RATE 15
 #define RANGE_RHYTHM_INSTRUMENTS 31
 #define RANGE_OCTAVE 7
 #define RANGE_INSTRUMENT 15
@@ -43,19 +34,30 @@ void ym2420_write_changes();
 void ym2420_setup();
 void ym2420_reset();
 
-void amplitude_modulation(int, int);
-void vibrato(int, int);
-void sustained_sound(int, int);
-void rate_key_scale(int, int);
-void multi_sample_wave(int, int);
-void level_key_scale(int, int);
+void amplitude_modulation_carrier(int);
+void amplitude_modulation_modulation(int);
+void vibrato_carrier(int);
+void vibrato_modulation(int);
+void sustained_sound_carrier(int);
+void sustained_sound_modulation(int);
+void rate_key_scale_carrier(int);
+void rate_key_scale_modulation(int);
+void multi_sample_wave_carrier(int);
+void multi_sample_wave_modulation(int);
+void level_key_scale_carrier(int);
+void level_key_scale_modulation(int);
 void modulation_index(int);
-void wave_distortion(int, int);
+void wave_distortion_carrier(int);
+void wave_distortion_modulation(int);
 void fm_feedback_constant(int);
-void attack_rate(int, int);
-void decay_rate(int, int);
-void sustain_rate(int, int);
-void release_rate(int, int);
+void attack_rate_carrier(int);
+void decay_rate_carrier(int);
+void sustain_rate_carrier(int);
+void release_rate_carrier(int);
+void attack_rate_modulation(int);
+void decay_rate_modulation(int);
+void sustain_rate_modulation(int);
+void release_rate_modulation(int);
 void rhythm_sound(int);
 void rhythm_instruments(int);
 void sustain(int, int);
@@ -65,4 +67,5 @@ void instrument(int, int);
 void volume(int, int);
 void f_number(int, int);
 void f_number_key(int, int);
+
 #endif

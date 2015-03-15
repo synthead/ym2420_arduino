@@ -2,7 +2,7 @@
 #include <SPI.h>
 
 #define MCP3008_CS_WAIT 4
-#define MCP3008_SAMPLES 10
+#define MCP3008_SAMPLES 5
 
 void mcp3008_setup(int chip_select) {
   pinMode(chip_select, OUTPUT);
