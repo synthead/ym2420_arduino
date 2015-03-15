@@ -7,9 +7,6 @@
 
 #define YM_A0 2
 #define YM_CS 3
-#define YM_IC 4
-
-#define RESET_TIME 1000
 
 uint8_t registers[0x38] = {0};
 
@@ -48,19 +45,9 @@ void ym2420_setup() {
 
   pinMode(YM_A0, OUTPUT);
   pinMode(YM_CS, OUTPUT);
-  pinMode(YM_IC, OUTPUT);
 
   digitalWrite(YM_A0, 1);
   digitalWrite(YM_CS, 1);
-  digitalWrite(YM_IC, 1);
-
-  ym2420_reset();
-}
-
-void ym2420_reset() {
-  digitalWrite(YM_IC, 0);
-  delayMicroseconds(RESET_TIME);
-  digitalWrite(YM_IC, 1);
 }
 
 void ym2420_write(uint8_t address) {
