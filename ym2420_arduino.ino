@@ -18,5 +18,4 @@ void setup() {
 void loop() {
   apply_controls();
   scan_keyboard();
-  ym2420_write_changes();
 }

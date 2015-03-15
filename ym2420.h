@@ -32,9 +32,7 @@
 #define INSTRUMENT_ACOUSTIC_BASS 14
 #define INSTRUMENT_ELECTRIC_GUITAR 15
 
-void ym2420_write_changes();
 void ym2420_setup();
-void ym2420_reset();
 
 void amplitude_modulation_carrier(bool);
 void amplitude_modulation_modulation(bool);

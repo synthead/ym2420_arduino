@@ -9,12 +9,9 @@
 #define YM_CS 3
 #define YM_IC 4
 
-#define REGISTER_CHANGES_MAX 100
 #define RESET_TIME 1000
 
 uint8_t registers[0x38] = {0};
-uint8_t register_changes[REGISTER_CHANGES_MAX];
-uint8_t register_changes_sum = 0;
 
 // Generate this data by compiling the blub below like so:
 // $ gcc foo.c -o foo -lm -std=c99
@@ -66,40 +63,29 @@ void ym2420_reset() {
   digitalWrite(YM_IC, 1);
 }
 
-void ym2420_write_changes() {
-  for (uint8_t change = 0; change < register_changes_sum; change++) {
-    mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, register_changes[change]);
-    digitalWrite(YM_A0, 0);
-    digitalWrite(YM_CS, 0);
-    digitalWrite(YM_CS, 1);
+void ym2420_write(uint8_t address) {
+  mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, address);
+  digitalWrite(YM_A0, 0);
+  digitalWrite(YM_CS, 0);
+  digitalWrite(YM_CS, 1);
 
-    mcp23s17_write(
-        MCP23S17_HW_ADDRESS, 0x12, registers[register_changes[change]]);
-    digitalWrite(YM_A0, 1);
-    digitalWrite(YM_CS, 0);
-    digitalWrite(YM_CS, 1);
-  }
-
-  register_changes_sum = 0;
-}
-
-void store_byte(uint8_t address, uint8_t new_value) {
-  registers[address] = new_value;
-  register_changes[register_changes_sum] = address;
-  register_changes_sum++;
+  mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, registers[address]);
+  digitalWrite(YM_A0, 1);
+  digitalWrite(YM_CS, 0);
+  digitalWrite(YM_CS, 1);
 }
 
 void store_bit(uint8_t address, bool value, uint8_t bit) {
-  uint8_t new_value = registers[address] ^ (
-      -value ^ registers[address]) & (1 << bit);
-  store_byte(address, new_value);
+  registers[address] ^= (-value ^ registers[address]) & (1 << bit);
+  ym2420_write(address);
 }
 
 void store_range(
     uint8_t address, uint8_t value, uint8_t position, uint8_t length) {
   uint8_t mask = ((1 << length) - 1) << position;
-  uint8_t new_value = (registers[address] & ~mask) | (value << position & mask);
-  store_byte(address, new_value);
+  registers[address] = (
+      registers[address] & ~mask) | (value << position & mask);
+  ym2420_write(address);
 }
 
 void amplitude_modulation_carrier(bool value) {
