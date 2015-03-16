@@ -16,6 +16,7 @@ void setup() {
 }
 
 void loop() {
+  check_expired_message();
   apply_controls();
   scan_keyboard();
 }

@@ -187,7 +187,7 @@ void hd44780_print_analog_control(analog_control control) {
   sprintf(percent_text, "%3d%%", control.value * 100 / control.ym2420_range.range);
 
   if (last_analog_change.chip_select != control.chip_select ||
-      last_analog_change.pin != control.pin) {
+      last_analog_change.pin != control.pin || temporary_message.expired) {
     last_analog_change.chip_select = control.chip_select;
     last_analog_change.pin = control.pin;
 
@@ -203,12 +203,14 @@ void hd44780_print_analog_control(analog_control control) {
   } else {
     hd44780_print_position(12, 1, percent_text);
   }
+
+  set_temporary_message();
 }
 
 void hd44780_print_digital_control(digital_control control) {
   const char* state = control.value ? "On " : "Off";
 
-  if (last_digital_change_pin != control.pin) {
+  if (last_digital_change_pin != control.pin || temporary_message.expired) {
     last_digital_change_pin = control.pin;
 
     char line1_padded[17];
@@ -223,6 +225,8 @@ void hd44780_print_digital_control(digital_control control) {
   } else {
     hd44780_print_position(13, 1, state);
   }
+
+  set_temporary_message();
 }
 
 void apply_analog_controls(bool print_to_lcd) {
