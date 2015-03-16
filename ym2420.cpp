@@ -152,6 +152,43 @@ ym2420_ranges_t ym2420_ranges = {
 
 ym2420_oscillators_t ym2420_oscillators[YM2420_OSCILLATORS];
 
+void ym2420_write(uint8_t address) {
+  mcp23s17_write_parallel(YM2420_CS, YM2420_ADDRESS_MODE, address);
+  mcp23s17_write_parallel(YM2420_CS, YM2420_DATA_MODE, registers[address]);
+}
+
+void ym2420_write_range(ym2420_range_t range, uint8_t value) {
+  if (range.inverted) {
+    value = range.range - value;
+  }
+
+  uint8_t mask = range.range << range.first_bit;
+  registers[range.address] = (
+      registers[range.address] & ~mask) | (value << range.first_bit & mask);
+  ym2420_write(range.address);
+}
+
+void ym2420_write_bit(ym2420_bit_t bit, uint8_t value) {
+  registers[bit.address] ^= (-value ^ registers[bit.address]) & (1 << bit.bit);
+  ym2420_write(bit.address);
+}
+
+void ym2420_write_f_number(uint8_t oscillator, unsigned int f_number) {
+  ym2420_write_range(
+      ym2420_oscillators[oscillator].f_number_0x10, f_number >> 4);
+  ym2420_write_range(
+      ym2420_oscillators[oscillator].f_number_0x20, f_number & 0b1111);
+}
+
+void ym2420_write_f_number_key(uint8_t oscillator, uint8_t key_number) {
+  // FIXME: +2?  Why?
+  uint8_t octave = ((int)f_numbers[key_number] / 512) + 2;
+  unsigned int f_number = f_numbers[key_number] / pow(2, octave);
+
+  ym2420_write_range(ym2420_oscillators[oscillator].octave, octave);
+  ym2420_write_f_number(oscillator, f_number);
+}
+
 void ym2420_setup() {
   for (uint8_t key = 0; key < YM2420_F_NUMBER_KEYS; key++) {
     f_numbers[key] = pow(2, (float)(key - 48) / 12) * 288.3584;
@@ -201,41 +238,8 @@ void ym2420_setup() {
 
   pinMode(YM2420_CS, OUTPUT);
   digitalWrite(YM2420_CS, HIGH);
+
+  ym2420_write_bit(ym2420_bits.sustained_sound_carrier, true);
+  ym2420_write_bit(ym2420_bits.sustained_sound_modulation, true);
 }
 
-void ym2420_write(uint8_t address) {
-  mcp23s17_write_parallel(YM2420_CS, YM2420_ADDRESS_MODE, address);
-  mcp23s17_write_parallel(YM2420_CS, YM2420_DATA_MODE, registers[address]);
-}
-
-void ym2420_write_range(ym2420_range_t range, uint8_t value) {
-  if (range.inverted) {
-    value = range.range - value;
-  }
-
-  uint8_t mask = range.range << range.first_bit;
-  registers[range.address] = (
-      registers[range.address] & ~mask) | (value << range.first_bit & mask);
-  ym2420_write(range.address);
-}
-
-void ym2420_write_bit(ym2420_bit_t bit, uint8_t value) {
-  registers[bit.address] ^= (-value ^ registers[bit.address]) & (1 << bit.bit);
-  ym2420_write(bit.address);
-}
-
-void ym2420_write_f_number(uint8_t oscillator, unsigned int f_number) {
-  ym2420_write_range(
-      ym2420_oscillators[oscillator].f_number_0x10, f_number >> 4);
-  ym2420_write_range(
-      ym2420_oscillators[oscillator].f_number_0x20, f_number & 0b1111);
-}
-
-void ym2420_write_f_number_key(uint8_t oscillator, uint8_t key_number) {
-  // FIXME: +2?  Why?
-  uint8_t octave = ((int)f_numbers[key_number] / 512) + 2;
-  unsigned int f_number = f_numbers[key_number] / pow(2, octave);
-
-  ym2420_write_range(ym2420_oscillators[oscillator].octave, octave);
-  ym2420_write_f_number(oscillator, f_number);
-}
