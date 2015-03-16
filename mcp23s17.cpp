@@ -4,10 +4,24 @@
 
 #define MCP23S17_CS 5
 
+#define MCP23S17_GPIOA 0x12
+#define MCP23S17_GPIOB 0x13
+
+#define MCP23S17_IOCON 0x0a
+#define MCP23S17_IOCON_HAEN 0b00001000
+
+#define PARALLEL_BUS_HW_ADDRESS 0b000
+#define PARALLEL_BUS_GPIO MCP23S17_GPIOA
+#define PARALLEL_BUS_ADDRESS_MODE 2
+
 void mcp23s17_setup() {
   pinMode(MCP23S17_CS, OUTPUT);
+  pinMode(PARALLEL_BUS_ADDRESS_MODE, OUTPUT);
+
   digitalWrite(MCP23S17_CS, HIGH);
-  mcp23s17_write(0b000, 0x0a, 0b00001000);  // Enable IOCON.HAEN.
+
+  mcp23s17_write(0b000, MCP23S17_IOCON, MCP23S17_IOCON_HAEN);
+  mcp23s17_write(PARALLEL_BUS_HW_ADDRESS, MCP23S17_IODIRA, 0x00);
 }
 
 void mcp23s17_write(uint8_t hw_address, uint8_t address, uint8_t data) {
@@ -32,3 +46,11 @@ uint8_t mcp23s17_read(uint8_t hw_address, uint8_t address) {
   return value;
 }
 
+void mcp23s17_write_parallel(uint8_t chip_select, bool mode, uint8_t data) {
+  digitalWrite(PARALLEL_BUS_ADDRESS_MODE, mode);
+
+  mcp23s17_write(PARALLEL_BUS_HW_ADDRESS, PARALLEL_BUS_GPIO, data);
+
+  digitalWrite(chip_select, LOW);
+  digitalWrite(chip_select, HIGH);
+}

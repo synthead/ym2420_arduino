@@ -4,6 +4,7 @@
 #include <SPI.h>
 
 #define MCP23S17_HW_ADDRESS 0b001
+
 #define FIRST_KEY_NUMBER 46
 #define OSCILLATORS 8
 
@@ -20,13 +21,13 @@ void setup_keyboard(uint8_t instrument_number) {
         ym2420_oscillators[oscillator].instrument, instrument_number);
   }
 
-  mcp23s17_write(MCP23S17_HW_ADDRESS, 0x01, 0x00);
+  mcp23s17_write(MCP23S17_HW_ADDRESS, MCP23S17_IODIRB, 0x00);
 }
 
 void scan_keyboard() {
   for (uint8_t column = 0; column < 6; column++) {
-    mcp23s17_write(MCP23S17_HW_ADDRESS, 0x13, 1 << column);
-    uint8_t keys = mcp23s17_read(MCP23S17_HW_ADDRESS, 0x12);
+    mcp23s17_write(MCP23S17_HW_ADDRESS, MCP23S17_GPIOB, 1 << column);
+    uint8_t keys = mcp23s17_read(MCP23S17_HW_ADDRESS, MCP23S17_GPIOA);
 
     for (uint8_t row = 0; row < 7; row++) {
       bool key_on = (keys >> row) & 1;

@@ -168,7 +168,7 @@ digital_control digital_controls[DIGITAL_CONTROL_COUNT] = {
      .line2 = "Modulation"}
 };
 
-void lcd_print_analog_control(analog_control control) {
+void hd44780_print_analog_control(analog_control control) {
   char percent_text[5];
   sprintf(percent_text, "%3d%%", control.value * 100 / control.ym2420_range.range);
 
@@ -179,19 +179,19 @@ void lcd_print_analog_control(analog_control control) {
 
     char line1_padded[17];
     sprintf(line1_padded, "%-16s", control.line1);
-    lcd_print_position(0, 0, line1_padded);
+    hd44780_print_position(0, 0, line1_padded);
 
     char line2_padded[13];
     sprintf(line2_padded, "%-12s", control.line2);
-    lcd_print_position(0, 1, line2_padded);
+    hd44780_print_position(0, 1, line2_padded);
 
-    lcd_print(percent_text);
+    hd44780_print(percent_text);
   } else {
-    lcd_print_position(12, 1, percent_text);
+    hd44780_print_position(12, 1, percent_text);
   }
 }
 
-void lcd_print_digital_control(digital_control control) {
+void hd44780_print_digital_control(digital_control control) {
   const char* state = control.value ? "On " : "Off";
 
   if (last_digital_change_pin != control.pin) {
@@ -199,15 +199,15 @@ void lcd_print_digital_control(digital_control control) {
 
     char line1_padded[17];
     sprintf(line1_padded, "%-16s", control.line1);
-    lcd_print_position(0, 0, line1_padded);
+    hd44780_print_position(0, 0, line1_padded);
 
     char line2_padded[14];
     sprintf(line2_padded, "%-13s", control.line2);
-    lcd_print_position(0, 1, line2_padded);
+    hd44780_print_position(0, 1, line2_padded);
 
-    lcd_print(state);
+    hd44780_print(state);
   } else {
-    lcd_print_position(13, 1, state);
+    hd44780_print_position(13, 1, state);
   }
 }
 
@@ -223,14 +223,14 @@ void apply_analog_controls(bool print_to_lcd) {
       ym2420_write_range(analog_controls[control].ym2420_range, value);
 
       if (print_to_lcd) {
-        lcd_print_analog_control(analog_controls[control]);
+        hd44780_print_analog_control(analog_controls[control]);
       }
     }
   }
 }
 
 void apply_digital_controls(bool print_to_lcd) {
-  uint8_t values = mcp23s17_read(MCP23S17_HW_ADDRESS, 0x13);
+  uint8_t values = mcp23s17_read(MCP23S17_HW_ADDRESS, MCP23S17_GPIOB);
 
   for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
     bool value = (values >> digital_controls[control].pin) & 1;
@@ -240,7 +240,7 @@ void apply_digital_controls(bool print_to_lcd) {
       ym2420_write_bit(digital_controls[control].ym2420_bit, value);
 
       if (print_to_lcd) {
-        lcd_print_digital_control(digital_controls[control]);
+        hd44780_print_digital_control(digital_controls[control]);
       }
     }
   }

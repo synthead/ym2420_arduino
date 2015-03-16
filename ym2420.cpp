@@ -1,12 +1,11 @@
 #include "ym2420.h"
 #include "mcp23s17.h"
-#include "hd44780.h"
 #include <Arduino.h>
 
-#define MCP23S17_HW_ADDRESS 0b000
-
-#define YM2420_A0 2
 #define YM2420_CS 3
+
+#define YM2420_DATA_MODE true
+#define YM2420_ADDRESS_MODE false
 
 #define YM2420_F_NUMBER_KEYS 88
 
@@ -200,25 +199,13 @@ void ym2420_setup() {
     };
   }
 
-  mcp23s17_write(MCP23S17_HW_ADDRESS, 0x00, 0x00);
-
-  pinMode(YM2420_A0, OUTPUT);
   pinMode(YM2420_CS, OUTPUT);
-
-  digitalWrite(YM2420_A0, 1);
-  digitalWrite(YM2420_CS, 1);
+  digitalWrite(YM2420_CS, HIGH);
 }
 
 void ym2420_write(uint8_t address) {
-  mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, address);
-  digitalWrite(YM2420_A0, 0);
-  digitalWrite(YM2420_CS, 0);
-  digitalWrite(YM2420_CS, 1);
-
-  mcp23s17_write(MCP23S17_HW_ADDRESS, 0x12, registers[address]);
-  digitalWrite(YM2420_A0, 1);
-  digitalWrite(YM2420_CS, 0);
-  digitalWrite(YM2420_CS, 1);
+  mcp23s17_write_parallel(YM2420_CS, YM2420_ADDRESS_MODE, address);
+  mcp23s17_write_parallel(YM2420_CS, YM2420_DATA_MODE, registers[address]);
 }
 
 void ym2420_write_range(ym2420_range_t range, uint8_t value) {
