@@ -15,5 +15,5 @@ unsigned int mcp3008_read(uint8_t chip_select, uint8_t channel, uint8_t range) {
 
   digitalWrite(chip_select, HIGH);
 
-  return value * range / 1023;
+  return value * (range + 1) / 1024;
 }
