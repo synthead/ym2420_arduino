@@ -21,72 +21,104 @@
 #define INSTRUMENT_ACOUSTIC_BASS 14
 #define INSTRUMENT_ELECTRIC_GUITAR 15
 
+#define YM2420_F_NUMBER_KEYS 88
 #define YM2420_OSCILLATORS 8
-
-struct ym2420_bit_t {
-  uint8_t address;
-  uint8_t bit;
-};
-
-struct ym2420_bits_t {
-  ym2420_bit_t amplitude_modulation_carrier;
-  ym2420_bit_t amplitude_modulation_modulation;
-  ym2420_bit_t vibrato_carrier;
-  ym2420_bit_t vibrato_modulation;
-  ym2420_bit_t sustained_sound_carrier;
-  ym2420_bit_t sustained_sound_modulation;
-  ym2420_bit_t rate_key_scale_carrier;
-  ym2420_bit_t rate_key_scale_modulation;
-  ym2420_bit_t wave_distortion_carrier;
-  ym2420_bit_t wave_distortion_modulation;
-  ym2420_bit_t rhythm_sound;
-};
-
-struct ym2420_range_t {
-  uint8_t address;
-  uint8_t first_bit;
-  uint8_t range;
-  bool inverted;
-};
-
-struct ym2420_ranges_t {
-  ym2420_range_t multi_sample_wave_carrier;
-  ym2420_range_t multi_sample_wave_modulation;
-  ym2420_range_t level_key_scale_carrier;
-  ym2420_range_t level_key_scale_modulation;
-  ym2420_range_t modulation_index;
-  ym2420_range_t fm_feedback_constant;
-  ym2420_range_t attack_rate_carrier;
-  ym2420_range_t decay_rate_carrier;
-  ym2420_range_t sustain_rate_carrier;
-  ym2420_range_t release_rate_carrier;
-  ym2420_range_t attack_rate_modulation;
-  ym2420_range_t decay_rate_modulation;
-  ym2420_range_t sustain_rate_modulation;
-  ym2420_range_t release_rate_modulation;
-  ym2420_range_t rhythm_instruments;
-};
-
-struct ym2420_oscillators_t {
-  ym2420_bit_t sustain;
-  ym2420_bit_t key;
-  ym2420_range_t octave;
-  ym2420_range_t instrument;
-  ym2420_range_t volume;
-  ym2420_range_t f_number_0x10;
-  ym2420_range_t f_number_0x20;
-};
 
 void ym2420_setup();
 
-void ym2420_write_range(ym2420_range_t, uint8_t);
-void ym2420_write_bit(ym2420_bit_t, uint8_t);
+class YM2420Bit {
+    const uint8_t address;
+    const uint8_t bit_number;
+  public:
+    YM2420Bit(uint8_t, uint8_t);
+    void set(uint8_t);
+};
 
-void ym2420_write_f_number(uint8_t, unsigned int);
-void ym2420_write_f_number_key(uint8_t, uint8_t);
+class YM2420Range {
+    const uint8_t address;
+    const uint8_t first_bit;
+    const uint8_t range;
+    const bool inverted;
+  public:
+    YM2420Range(uint8_t, uint8_t, uint8_t, bool);
+    uint8_t get_range();
+    void set(uint8_t);
+};
 
-extern ym2420_ranges_t ym2420_ranges;
-extern ym2420_bits_t ym2420_bits;
-extern ym2420_oscillators_t ym2420_oscillators[YM2420_OSCILLATORS];
+class YM2420OscillatorBit {
+    const uint8_t address;
+    const uint8_t bit_number;
+  public:
+    YM2420OscillatorBit(uint8_t, uint8_t);
+    void set(uint8_t, uint8_t);
+};
+
+class YM2420OscillatorRange {
+    uint8_t address;
+    uint8_t first_bit;
+    uint8_t range;
+    bool inverted;
+  public:
+    YM2420OscillatorRange(uint8_t, uint8_t, uint8_t, bool);
+    uint8_t get_range();
+    void set(uint8_t, uint8_t);
+};
+
+class YM2420OscillatorFrequency {
+    YM2420OscillatorRange *octave;
+
+    uint8_t address_lsb;
+    uint8_t first_bit_lsb;
+    uint8_t range_lsb;
+
+    uint8_t address_msb;
+    uint8_t first_bit_msb;
+    uint8_t range_msb;
+
+    float f_numbers[YM2420_F_NUMBER_KEYS];
+  public:
+    YM2420OscillatorFrequency(
+        YM2420OscillatorRange*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t,
+        uint8_t);
+    void set_f_number(uint8_t, unsigned int);
+    void set_key(uint8_t, uint8_t);
+};
+
+extern YM2420Bit amplitude_modulation_carrier;
+extern YM2420Bit amplitude_modulation_modulation;
+extern YM2420Bit vibrato_carrier;
+extern YM2420Bit vibrato_modulation;
+extern YM2420Bit sustained_sound_carrier;
+extern YM2420Bit sustained_sound_modulation;
+extern YM2420Bit rate_key_scale_carrier;
+extern YM2420Bit rate_key_scale_modulation;
+extern YM2420Bit wave_distortion_carrier;
+extern YM2420Bit wave_distortion_modulation;
+extern YM2420Bit rhythm_sound;
+
+extern YM2420Range multi_sample_wave_carrier;
+extern YM2420Range multi_sample_wave_modulation;
+extern YM2420Range level_key_scale_carrier;
+extern YM2420Range level_key_scale_modulation;
+extern YM2420Range modulation_index;
+extern YM2420Range fm_feedback_constant;
+extern YM2420Range attack_rate_carrier;
+extern YM2420Range decay_rate_carrier;
+extern YM2420Range sustain_rate_carrier;
+extern YM2420Range release_rate_carrier;
+extern YM2420Range attack_rate_modulation;
+extern YM2420Range decay_rate_modulation;
+extern YM2420Range sustain_rate_modulation;
+extern YM2420Range release_rate_modulation;
+extern YM2420Range rhythm_instruments;
+
+extern YM2420OscillatorBit sustain;
+extern YM2420OscillatorBit key;
+
+extern YM2420OscillatorRange octave;
+extern YM2420OscillatorRange instrument;
+extern YM2420OscillatorRange volume;
+
+extern YM2420OscillatorFrequency frequency;
 
 #endif
