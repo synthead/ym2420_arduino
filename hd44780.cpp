@@ -33,7 +33,8 @@ void set_temporary_message() {
 }
 
 void check_expired_message() {
-  if (temporary_message.displayed_at + TEMP_MESSAGE_EXPIRATION < millis()) {
+  if (! temporary_message.expired &&
+      temporary_message.displayed_at + TEMP_MESSAGE_EXPIRATION < millis()) {
     temporary_message.expired = true;
 
     hd44780_print_position(0, 0, "000: I made it! ");
