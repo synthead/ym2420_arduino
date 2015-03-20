@@ -7,11 +7,32 @@
 
 #define YM2420_CS 3
 
+#define INSTRUMENT_ORIGINAL 0
+#define INSTRUMENT_VIOLIN 1
+#define INSTRUMENT_GUITAR 2
+#define INSTRUMENT_PIANO 3
+#define INSTRUMENT_FLUTE 4
+#define INSTRUMENT_CLARINET 5
+#define INSTRUMENT_OBOE 6
+#define INSTRUMENT_TRUMPET 7
+#define INSTRUMENT_ORGAN 8
+#define INSTRUMENT_HORN 9
+#define INSTRUMENT_SYNTHESIZER 10
+#define INSTRUMENT_HARPSICHORD 11
+#define INSTRUMENT_VIBRAPHONE 12
+#define INSTRUMENT_SYNTHESIZER_BASS 13
+#define INSTRUMENT_ACOUSTIC_BASS 14
+#define INSTRUMENT_ELECTRIC_GUITAR 15
+
 uint8_t register_contents[0x38];
 
 void ym2420_setup() {
   pinMode(YM2420_CS, OUTPUT);
   digitalWrite(YM2420_CS, HIGH);
+
+  for (uint8_t oscillator = 0; oscillator < YM2420_OSCILLATORS; oscillator++) {
+    instrument.set(oscillator, INSTRUMENT_ORIGINAL);
+  }
 
   sustained_sound_carrier.set(true);
   sustained_sound_modulation.set(true);

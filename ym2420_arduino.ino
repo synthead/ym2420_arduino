@@ -7,12 +7,11 @@
 
 void setup() {
   SPI.begin();
+
   mcp23s17_setup();
   hd44780_setup();
   ym2420_setup();
-
   setup_controls();
-  setup_keyboard(INSTRUMENT_ORIGINAL);
 }
 
 void loop() {

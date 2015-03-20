@@ -6,7 +6,6 @@
 
 #define MCP3008_0_CS 6
 #define MCP3008_1_CS 7
-#define MCP23S17_HW_ADDRESS 0b000
 
 #define ANALOG_CONTROL_COUNT 14
 #define DIGITAL_CONTROL_COUNT 8
@@ -250,7 +249,7 @@ void apply_analog_controls(bool print_to_lcd) {
 }
 
 void apply_digital_controls(bool print_to_lcd) {
-  uint8_t values = mcp23s17_read(MCP23S17_HW_ADDRESS, MCP23S17_GPIOB);
+  uint8_t values = mcp23s17_scan_matrix(6);
 
   for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
     bool value = (values >> digital_controls[control].pin) & 1;
