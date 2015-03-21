@@ -2,6 +2,7 @@
 #include "mcp23s17.h"
 #include "ym2420.h"
 #include "hd44780.h"
+#include "menu.h"
 #include <Arduino.h>
 
 #define MCP3008_0_CS 6

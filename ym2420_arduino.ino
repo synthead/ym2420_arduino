@@ -3,6 +3,7 @@
 #include "hd44780.h"
 #include "controls.h"
 #include "keyboard.h"
+#include "menu.h"
 #include <SPI.h>
 
 void setup() {
@@ -12,6 +13,8 @@ void setup() {
   hd44780_setup();
   ym2420_setup();
   setup_controls();
+
+  startup_message();
 }
 
 void loop() {
