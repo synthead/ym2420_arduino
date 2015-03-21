@@ -4,6 +4,7 @@
 #include "controls.h"
 #include "keys.h"
 #include "menu.h"
+#include "sdcard.h"
 #include <SPI.h>
 
 void setup() {
@@ -13,6 +14,7 @@ void setup() {
   HD44780::setup();
   YM2420::setup();
   Controls::setup();
+  SDCard::setup();
 
   Menu::startup_message();
 }
