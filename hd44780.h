@@ -3,8 +3,10 @@
 
 #include <stdint.h>  // For uint8_t.
 
-void hd44780_print(const char*);
-void hd44780_print_position(uint8_t, uint8_t, const char*);
-void hd44780_setup();
+namespace HD44780 {
+  void print(const char*);
+  void print_position(uint8_t, uint8_t, const char*);
+  void setup();
+}
 
 #endif

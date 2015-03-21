@@ -6,10 +6,12 @@
 #define MCP23S17_GPIOA 0x12
 #define MCP23S17_GPIOB 0x13
 
-void mcp23s17_setup();
-void mcp23s17_write(uint8_t, uint8_t);
-uint8_t mcp23s17_read(uint8_t);
-void mcp23s17_write_parallel(uint8_t, bool, uint8_t);
-uint8_t mcp23s17_scan_matrix(uint8_t);
+namespace MCP23S17 {
+  void setup();
+  void write(uint8_t, uint8_t);
+  uint8_t read(uint8_t);
+  void write_parallel(uint8_t, bool, uint8_t);
+  uint8_t scan_matrix(uint8_t);
+}
 
 #endif

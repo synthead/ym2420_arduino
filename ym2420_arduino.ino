@@ -2,23 +2,23 @@
 #include "mcp23s17.h"
 #include "hd44780.h"
 #include "controls.h"
-#include "keyboard.h"
+#include "keys.h"
 #include "menu.h"
 #include <SPI.h>
 
 void setup() {
   SPI.begin();
 
-  mcp23s17_setup();
-  hd44780_setup();
-  ym2420_setup();
-  setup_controls();
+  MCP23S17::setup();
+  HD44780::setup();
+  YM2420::setup();
+  Controls::setup();
 
-  startup_message();
+  Menu::startup_message();
 }
 
 void loop() {
-  check_expired_message();
-  apply_controls();
-  scan_keyboard();
+  Menu::check_expired_message();
+  Controls::apply();
+  Keys::apply();
 }
