@@ -6,6 +6,7 @@
 
 #define YM2420_F_NUMBER_KEYS 88
 #define YM2420_OSCILLATORS 8
+#define YM2420_PATCH_DATA_END 0x08
 
 namespace YM2420 {
   void setup();
@@ -67,6 +68,8 @@ namespace YM2420 {
       void set_f_number(uint8_t, unsigned int);
       void set_key(uint8_t, uint8_t);
   };
+
+  extern uint8_t register_contents[0x38];
 
   extern Bit amplitude_modulation_carrier;
   extern Bit amplitude_modulation_modulation;

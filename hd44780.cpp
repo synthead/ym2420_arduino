@@ -18,11 +18,24 @@ namespace HD44780 {
     }
   }
 
-  void print_position(uint8_t column, uint8_t row, const char* text) {
+  void set_position(uint8_t column, uint8_t row) {
     MCP23S17::write_parallel(
         LCD_E, COMMAND_MODE,
         HD44780_SET_POSITON | HD44780_LINE2 * row + column);
+  }
+
+  void print_position(uint8_t column, uint8_t row, const char* text) {
+    set_position(column, row);
     print(text);
+  }
+
+  void print_all(const char* line1, const char* line2) {
+    char line_padded[17];
+    sprintf(line_padded, "%-16s", line1);
+    print_position(0, 0, line_padded);
+
+    sprintf(line_padded, "%-16s", line2);
+    print_position(0, 1, line_padded);
   }
 
   void setup() {

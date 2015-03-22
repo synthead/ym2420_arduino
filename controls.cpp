@@ -278,7 +278,7 @@ namespace Controls {
   }
 
   void apply() {
-    apply_analog(true);
-    apply_digital(true);
+    apply_analog(! Menu::temporary_message.menu_active);
+    apply_digital(! Menu::temporary_message.menu_active);
   }
 }

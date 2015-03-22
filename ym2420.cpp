@@ -25,7 +25,7 @@
 #define INSTRUMENT_ELECTRIC_GUITAR 15
 
 namespace YM2420 {
-  uint8_t register_contents[0x38];
+  uint8_t register_contents[0x38] = {0};
 
   void setup() {
     pinMode(YM2420_CS, OUTPUT);

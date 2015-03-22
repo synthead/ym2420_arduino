@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "hd44780.h"
 #include "mcp23s17.h"
+#include "patch_storage.h"
 #include <Arduino.h>
 
 #define MENU_MATRIX_COLUMN 7
@@ -8,6 +9,7 @@
 #define INPUTS_ENCODER_CCW  0b00000001
 #define INPUTS_ENCODER_CW   0b00000010
 #define INPUTS_ENCODER_DOWN 0b00000100
+#define INPUTS_SAVE_PATCH   0b00001000
 
 #define TEMP_MESSAGE_EXPIRATION 3000
 
@@ -18,9 +20,7 @@ namespace Menu {
   uint8_t last_inputs = 0;
 
   void startup_message() {
-    HD44780::print_position(0, 0, "Synthead YM2420 ");
-    HD44780::print_position(0, 1, "SW version 0.1  ");
-
+    HD44780::print_all("Synthead YM2420", "SW version 0.1");
     set_temporary_message();
   }
 
@@ -29,17 +29,20 @@ namespace Menu {
     temporary_message.expired = false;
   }
 
+  void set_menu_active(bool active) {
+    temporary_message.menu_active = active;
+    temporary_message.expired = true;
+  }
+
   void check_expired_message() {
     if (! temporary_message.expired &&
         temporary_message.displayed_at + TEMP_MESSAGE_EXPIRATION < millis()) {
       temporary_message.expired = true;
-
-      HD44780::print_position(0, 0, "000: I made it! ");
-      HD44780::print_position(0, 1, "                ");
+      PatchStorage::print_patch();
     }
   }
 
-  uint8_t scan_inputs() {
+  uint8_t new_inputs() {
     uint8_t inputs = MCP23S17::scan_matrix(MENU_MATRIX_COLUMN);
     uint8_t new_inputs = inputs & ~(inputs & last_inputs) & 0b11111100;
 
@@ -61,5 +64,18 @@ namespace Menu {
 
     last_inputs = inputs;
     return new_inputs;
+  }
+
+  void scan_inputs() {
+    uint8_t inputs = new_inputs();
+
+    if (inputs & INPUTS_SAVE_PATCH) {
+      PatchStorage::write_patch(1, "Foobar town 1234");
+      // set_menu_active(true);
+      // HD44780::print_position(0, 1, "Save your patch");
+    }
+  }
+
+  void save_patch() {
   }
 }
