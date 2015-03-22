@@ -72,5 +72,11 @@ namespace Menu {
     if (inputs & INPUTS_SAVE_PATCH) {
       PatchStorage::write(1, "Foobar town 1234");
     }
+
+    if (inputs & INPUTS_ENCODER_CW) {
+      PatchStorage::read_next();
+    } else if (inputs & INPUTS_ENCODER_CCW) {
+      PatchStorage::read_previous();
+    }
   }
 }

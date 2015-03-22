@@ -16,7 +16,6 @@ namespace PatchStorage {
     unsigned int id;
     char name[PATCH_NAMES_LENGTH + 1];
     bool unsaved;
-    uint8_t ym2420_patch[YM2420_PATCH_RANGE];
   };
 
   current_patch_t current_patch;
@@ -96,11 +95,22 @@ namespace PatchStorage {
       current_patch.name[byte] = patch.read();
     }
 
-    for (uint8_t byte = 0; byte < YM2420_PATCH_RANGE; byte++) {
-      current_patch.ym2420_patch[byte] = patch.read();
+    for (uint8_t address = 0; address < YM2420_PATCH_RANGE; address++) {
+      YM2420::register_contents[address] = patch.read();
+      YM2420::write(address);
     }
 
-    YM2420::write_patch(current_patch.ym2420_patch);
     current_patch.id = id;
+    print_patch();
+  }
+
+  void read_next() {
+    read(current_patch.id + 1);
+  }
+
+  void read_previous() {
+    if (current_patch.id != 0) {
+      read(current_patch.id - 1);
+    }
   }
 }

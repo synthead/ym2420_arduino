@@ -10,7 +10,7 @@
 
 namespace YM2420 {
   void setup();
-  void write_patch(uint8_t*);
+  void write(uint8_t);
 
   class Bit {
       const uint8_t address;
