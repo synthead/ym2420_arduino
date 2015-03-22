@@ -66,6 +66,13 @@ namespace YM2420 {
     write(address);
   }
 
+  void write_patch(uint8_t* new_register_contents) {
+    for (uint8_t address = 0x00; address < YM2420_PATCH_RANGE; address++) {
+      register_contents[address] = new_register_contents[address];
+      write(address);
+    }
+  }
+
 
   Bit::Bit(uint8_t a, uint8_t b):
     address(a), bit_number(b) {}

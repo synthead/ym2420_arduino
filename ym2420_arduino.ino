@@ -18,6 +18,8 @@ void setup() {
   YM2420::setup();
   Controls::setup();
   PatchStorage::setup();
+
+  PatchStorage::read(1);
 }
 
 void loop() {

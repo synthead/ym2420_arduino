@@ -70,12 +70,7 @@ namespace Menu {
     uint8_t inputs = new_inputs();
 
     if (inputs & INPUTS_SAVE_PATCH) {
-      PatchStorage::write_patch(1, "Foobar town 1234");
-      // set_menu_active(true);
-      // HD44780::print_position(0, 1, "Save your patch");
+      PatchStorage::write(1, "Foobar town 1234");
     }
-  }
-
-  void save_patch() {
   }
 }
