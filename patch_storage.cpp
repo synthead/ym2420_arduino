@@ -63,7 +63,6 @@ namespace PatchStorage {
     }
 
     patch.close();
-
     HD44780::print_all("Wrote patch", "to SD card.");
     Menu::set_temporary_message();
   }
@@ -100,6 +99,7 @@ namespace PatchStorage {
       YM2420::write(address);
     }
 
+    patch.close();
     current_patch.id = id;
     print_patch();
   }
