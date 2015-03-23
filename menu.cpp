@@ -70,7 +70,7 @@ namespace Menu {
     uint8_t inputs = new_inputs();
 
     if (inputs & INPUTS_SAVE_PATCH) {
-      PatchStorage::write(1, "Foobar town 1234");
+      PatchStorage::write_next("Footown");
     }
 
     if (inputs & INPUTS_ENCODER_CW) {
