@@ -1,8 +1,8 @@
 #ifndef YM2420_H
 #define YM2420_H
 
-#include <stdint.h>  // For uint8_t.
-#include <stdbool.h>  // For bool.
+#include <stdint.h>
+#include <stdbool.h>
 
 #define YM2420_F_NUMBER_KEYS 88
 #define YM2420_OSCILLATORS 9

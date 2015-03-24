@@ -13,11 +13,12 @@ void setup() {
 
   MCP23S17::setup();
   HD44780::setup();
-  Menu::startup_message();
-
   YM2420::setup();
   Controls::setup();
   PatchStorage::setup();
+
+  Menu::startup_message();
+  PatchStorage::read(0);
 }
 
 void loop() {

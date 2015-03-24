@@ -1,7 +1,7 @@
 #ifndef ANALOG_H
 #define ANALOG_H
 
-#include <stdint.h>  // For uint8_t.
+#include <stdint.h>
 
 namespace MCP3008 {
   void setup(uint8_t);

@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <stdbool.h>  // For bool.
+#include <stdbool.h>
 
 namespace Menu {
   struct temporary_message_t {

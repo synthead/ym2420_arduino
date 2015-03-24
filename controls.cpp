@@ -197,15 +197,15 @@ namespace Controls {
 
       char line1_padded[17];
       sprintf(line1_padded, "%-16s", control.line1);
-      HD44780::print_position(0, 0, line1_padded);
+      HD44780::position_print(0, 0, line1_padded);
 
       char line2_padded[13];
       sprintf(line2_padded, "%-12s", control.line2);
-      HD44780::print_position(0, 1, line2_padded);
+      HD44780::position_print(0, 1, line2_padded);
 
       HD44780::print(percent_text);
     } else {
-      HD44780::print_position(12, 1, percent_text);
+      HD44780::position_print(12, 1, percent_text);
     }
 
     Menu::set_temporary_message();
@@ -220,15 +220,15 @@ namespace Controls {
 
       char line1_padded[17];
       sprintf(line1_padded, "%-16s", control.line1);
-      HD44780::print_position(0, 0, line1_padded);
+      HD44780::position_print(0, 0, line1_padded);
 
       char line2_padded[14];
       sprintf(line2_padded, "%-13s", control.line2);
-      HD44780::print_position(0, 1, line2_padded);
+      HD44780::position_print(0, 1, line2_padded);
 
       HD44780::print(state);
     } else {
-      HD44780::print_position(13, 1, state);
+      HD44780::position_print(13, 1, state);
     }
 
     Menu::set_temporary_message();

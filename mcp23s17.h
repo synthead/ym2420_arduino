@@ -1,7 +1,7 @@
 #ifndef MCP23S17_H
 #define MCP23S17_H
 
-#include <stdint.h>  // For uint8_t.
+#include <stdint.h>
 
 #define MCP23S17_GPIOA 0x12
 #define MCP23S17_GPIOB 0x13
