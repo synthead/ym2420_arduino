@@ -5,11 +5,13 @@
 #include "keys.h"
 #include "menu.h"
 #include "patch_storage.h"
+#include "midi.h"
 #include <SPI.h>
 #include <SD.h>
 
 void setup() {
   SPI.begin();
+  Serial1.begin(31250);
 
   MCP23S17::setup();
   HD44780::setup();
