@@ -26,7 +26,7 @@ void setup() {
 void loop() {
   Menu::check_expired_message();
   Menu::scan_inputs();
-  Controls::apply();
+  Controls::update_all();
   Keys::apply();
   MIDI::process_messages();
 }

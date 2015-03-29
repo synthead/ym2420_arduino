@@ -1,9 +1,12 @@
+#include "controls.h"
 #include "mcp3008.h"
 #include "mcp23s17.h"
 #include "ym2420.h"
 #include "hd44780.h"
 #include "menu.h"
 #include <Arduino.h>
+
+#define DIGITAL_CONTROLS_COLUMN 6
 
 #define MCP3008_0_CS 6
 #define MCP3008_1_CS 7
@@ -12,242 +15,184 @@
 #define DIGITAL_CONTROL_COUNT 8
 
 namespace Controls {
-  struct analog_control {
-    const uint8_t chip_select;
-    const uint8_t pin;
-    YM2420::Range* ym2420_range;
-    const char* line1;
-    const char* line2;
-    uint8_t value;
-  };
+  uint8_t digital_values = 0;
 
-  struct digital_control {
-    const uint8_t pin;
-    YM2420::Bit* ym2420_bit;
-    const char* line1;
-    const char* line2;
-    bool value;
-  };
+  void update_digital_values() {
+    digital_values = MCP23S17::scan_matrix(DIGITAL_CONTROLS_COLUMN);
+  }
 
-  analog_control analog_controls[ANALOG_CONTROL_COUNT] = {
-      {.chip_select = MCP3008_0_CS,
-       .pin = 0,
-       .ym2420_range = &YM2420::multi_sample_wave_carrier,
-       .line1 = "Multi-smple wave",
-       .line2 = "Carrier",
-       .value = -1},
+  AnalogControl::AnalogControl(
+      const uint8_t a, const uint8_t b, YM2420::Range* c, const char* d,
+      const char* e):
+    chip_select(a), pin(b), ym2420_range(c), line1(d), line2(e) {}
 
-      {.chip_select = MCP3008_0_CS,
-       .pin = 1,
-       .ym2420_range = &YM2420::multi_sample_wave_modulation,
-       .line1 = "Multi-smple wave",
-       .line2 = "Modulation",
-       .value = -1},
+  bool AnalogControl::scan() {
+    unsigned int new_value = MCP3008::read(
+        chip_select, pin, ym2420_range->get_range());
 
-      {.chip_select = MCP3008_0_CS,
-       .pin = 2,
-       .ym2420_range = &YM2420::modulation_index,
-       .line1 = "Modulation index",
-       .line2 = "",
-       .value = -1},
+    if (new_value != value) {
+      value = new_value;
+      ym2420_range->set(new_value);
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-      {.chip_select = MCP3008_0_CS,
-       .pin = 3,
-       .ym2420_range = &YM2420::fm_feedback_constant,
-       .line1 = "FM feedback",
-       .line2 = "",
-       .value = -1},
-
-      {.chip_select = MCP3008_0_CS,
-       .pin = 4,
-       .ym2420_range = &YM2420::level_key_scale_carrier,
-       .line1 = "LEVEL key scale",
-       .line2 = "Carrier",
-       .value = -1},
-
-      {.chip_select = MCP3008_0_CS,
-       .pin = 5,
-       .ym2420_range = &YM2420::level_key_scale_modulation,
-       .line1 = "LEVEL key scale",
-       .line2 = "Modulation",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 0,
-       .ym2420_range = &YM2420::attack_rate_carrier,
-       .line1 = "Attack",
-       .line2 = "Carrier",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 1,
-       .ym2420_range = &YM2420::decay_rate_carrier,
-       .line1 = "Decay",
-       .line2 = "Carrier",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 2,
-       .ym2420_range = &YM2420::sustain_rate_carrier,
-       .line1 = "Sustain",
-       .line2 = "Carrier",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 3,
-       .ym2420_range = &YM2420::release_rate_carrier,
-       .line1 = "Release",
-       .line2 = "Carrier",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 4,
-       .ym2420_range = &YM2420::attack_rate_modulation,
-       .line1 = "Attack",
-       .line2 = "Modulation",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 5,
-       .ym2420_range = &YM2420::decay_rate_modulation,
-       .line1 = "Decay",
-       .line2 = "Modulation",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 6,
-       .ym2420_range = &YM2420::sustain_rate_modulation,
-       .line1 = "Sustain",
-       .line2 = "Modulation",
-       .value = -1},
-
-      {.chip_select = MCP3008_1_CS,
-       .pin = 7,
-       .ym2420_range = &YM2420::release_rate_modulation,
-       .line1 = "Release",
-       .line2 = "Modulation",
-       .value = -1}
-  };
-
-  digital_control digital_controls[DIGITAL_CONTROL_COUNT] = {
-      {.pin = 0,
-       .ym2420_bit = &YM2420::amplitude_modulation_carrier,
-       .line1 = "Amplitude Modltn",
-       .line2 = "Carrier"},
-
-      {.pin = 1,
-       .ym2420_bit = &YM2420::vibrato_carrier,
-       .line1 = "Vibrato",
-       .line2 = "Carrier"},
-
-      {.pin = 2,
-       .ym2420_bit = &YM2420::wave_distortion_carrier,
-       .line1 = "Wave distortion",
-       .line2 = "Carrier"},
-
-      {.pin = 3,
-       .ym2420_bit = &YM2420::rate_key_scale_carrier,
-       .line1 = "RATE key scale",
-       .line2 = "Carrier"},
-
-      {.pin = 4,
-       .ym2420_bit = &YM2420::amplitude_modulation_modulation,
-       .line1 = "Amplitude Modltn",
-       .line2 = "Modulation"},
-
-      {.pin = 5,
-       .ym2420_bit = &YM2420::vibrato_modulation,
-       .line1 = "Vibrato",
-       .line2 = "Modulation"},
-
-      {.pin = 6,
-       .ym2420_bit = &YM2420::wave_distortion_modulation,
-       .line1 = "Wave distortion",
-       .line2 = "Modulation"},
-
-      {.pin = 7,
-       .ym2420_bit = &YM2420::rate_key_scale_modulation,
-       .line1 = "RATE key scale",
-       .line2 = "Modulation"}
-  };
-
-  void print_analog_control(analog_control control) {
-    char line1_padded[17];
-    sprintf(line1_padded, "%-16s", control.line1);
-    HD44780::position_print(0, 0, line1_padded);
-
-    char line2_padded[13];
-    sprintf(line2_padded, "%-12s", control.line2);
-    HD44780::position_print(0, 1, line2_padded);
+  void AnalogControl::print() {
+    HD44780::position_print(0, 0, line1);
+    HD44780::position_print(0, 1, line2);
 
     char percent_text[5];
-    sprintf(
-        percent_text, "%3d%%",
-        control.value * 100 / control.ym2420_range->get_range());
+    sprintf(percent_text, "%3d%%", value * 100 / ym2420_range->get_range());
     HD44780::print(percent_text);
 
     Menu::set_temporary_message();
   }
 
-  void print_digital_control(digital_control control) {
-    char line1_padded[17];
-    sprintf(line1_padded, "%-16s", control.line1);
-    HD44780::position_print(0, 0, line1_padded);
+  void AnalogControl::update() {
+    if(scan() && ! Menu::temporary_message.menu_active) {
+      print();
+    }
+  }
 
-    char line2_padded[14];
-    sprintf(line2_padded, "%-13s", control.line2);
-    HD44780::position_print(0, 1, line2_padded);
+  DigitalControl::DigitalControl(
+      const uint8_t a, YM2420::Bit* b, const char* c, const char* d):
+    pin(a), ym2420_bit(b), line1(c), line2(d) {}
 
-    HD44780::print(control.value ? "On " : "Off");
+  bool DigitalControl::scan() {
+    bool new_value = (digital_values >> pin) & 1;
+
+    if (new_value != value) {
+      value = new_value;
+      ym2420_bit->set(new_value);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void DigitalControl::print() {
+    HD44780::position_print(0, 0, line1);
+    HD44780::position_print(0, 1, line2);
+    HD44780::print(value ? "On " : "Off");
 
     Menu::set_temporary_message();
   }
 
-  void apply_analog(bool print_to_lcd) {
-    for (uint8_t control = 0; control < ANALOG_CONTROL_COUNT; control++) {
-      unsigned int value = MCP3008::read(
-          analog_controls[control].chip_select,
-          analog_controls[control].pin,
-          analog_controls[control].ym2420_range->get_range());
-
-      if (value != analog_controls[control].value) {
-        analog_controls[control].value = value;
-        analog_controls[control].ym2420_range->set(value);
-
-        if (print_to_lcd) {
-          print_analog_control(analog_controls[control]);
-        }
-      }
+  void DigitalControl::update() {
+    if(scan() && ! Menu::temporary_message.menu_active) {
+      print();
     }
   }
 
-  void apply_digital(bool print_to_lcd) {
-    uint8_t values = MCP23S17::scan_matrix(6);
+  AnalogControl analog_controls[ANALOG_CONTROL_COUNT] = {
+      {MCP3008_0_CS, 0,
+       &YM2420::multi_sample_wave_carrier,
+       "Multi-smple wave", "Carrier     "},
 
-    for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
-      bool value = (values >> digital_controls[control].pin) & 1;
+      {MCP3008_0_CS, 1,
+       &YM2420::multi_sample_wave_modulation,
+       "Multi-smple wave", "Modulation  "},
 
-      if (value != digital_controls[control].value) {
-        digital_controls[control].value = value;
-        digital_controls[control].ym2420_bit->set(value);
+      {MCP3008_0_CS, 2,
+       &YM2420::modulation_index,
+       "Modulation index", "            "},
 
-        if (print_to_lcd) {
-          print_digital_control(digital_controls[control]);
-        }
-      }
-    }
-  }
+      {MCP3008_0_CS, 3,
+       &YM2420::fm_feedback_constant,
+       "FM feedback     ", "            "},
+
+      {MCP3008_0_CS, 4,
+       &YM2420::level_key_scale_carrier,
+       "LEVEL key scale ", "Carrier     "},
+
+      {MCP3008_0_CS, 5,
+       &YM2420::level_key_scale_modulation,
+       "LEVEL key scale ", "Modulation  "},
+
+      {MCP3008_1_CS, 0,
+       &YM2420::attack_rate_carrier,
+       "Attack          ", "Carrier     "},
+
+      {MCP3008_1_CS, 1,
+       &YM2420::decay_rate_carrier,
+       "Decay           ", "Carrier     "},
+
+      {MCP3008_1_CS, 2,
+       &YM2420::sustain_rate_carrier,
+       "Sustain         ", "Carrier     "},
+
+      {MCP3008_1_CS, 3,
+       &YM2420::release_rate_carrier,
+       "Release         ", "Carrier     "},
+
+      {MCP3008_1_CS, 4,
+       &YM2420::attack_rate_modulation,
+       "Attack          ", "Modulation  "},
+
+      {MCP3008_1_CS, 5,
+       &YM2420::decay_rate_modulation,
+       "Decay           ", "Modulation  "},
+
+      {MCP3008_1_CS, 6,
+       &YM2420::sustain_rate_modulation,
+       "Sustain         ", "Modulation  "},
+
+      {MCP3008_1_CS, 7,
+       &YM2420::release_rate_modulation,
+       "Release         ", "Modulation  "}};
+
+
+  DigitalControl digital_controls[DIGITAL_CONTROL_COUNT] = {
+      {0, &YM2420::amplitude_modulation_carrier,
+       "Amplitude Modltn", "Carrier      "},
+
+      {1, &YM2420::vibrato_carrier,
+       "Vibrato         ", "Carrier      "},
+
+      {2, &YM2420::wave_distortion_carrier,
+       "Wave distortion ", "Carrier      "},
+
+      {3, &YM2420::rate_key_scale_carrier,
+       "RATE key scale  ", "Carrier      "},
+
+      {4, &YM2420::amplitude_modulation_modulation,
+       "Amplitude Modltn", "Modulation   "},
+
+      {5, &YM2420::vibrato_modulation,
+       "Vibrato         ", "Modulation   "},
+
+      {6, &YM2420::wave_distortion_modulation,
+       "Wave distortion ", "Modulation   "},
+
+      {7, &YM2420::rate_key_scale_modulation,
+       "RATE key scale  ", "Modulation   "}};
 
   void setup() {
     MCP3008::setup(MCP3008_0_CS);
     MCP3008::setup(MCP3008_1_CS);
 
-    apply_analog(false);
-    apply_digital(false);
+    update_digital_values();
+
+    for (uint8_t control = 0; control < ANALOG_CONTROL_COUNT; control++) {
+      analog_controls[control].scan();
+    }
+
+    for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
+      digital_controls[control].scan();
+    }
   }
 
-  void apply() {
-    apply_analog(! Menu::temporary_message.menu_active);
-    apply_digital(! Menu::temporary_message.menu_active);
+  void update_all() {
+    update_digital_values();
+
+    for (uint8_t control = 0; control < ANALOG_CONTROL_COUNT; control++) {
+      analog_controls[control].update();
+    }
+
+    for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT; control++) {
+      digital_controls[control].update();
+    }
   }
 }
