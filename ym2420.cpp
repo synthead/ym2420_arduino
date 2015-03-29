@@ -24,8 +24,13 @@
 #define INSTRUMENT_ACOUSTIC_BASS 14
 #define INSTRUMENT_ELECTRIC_GUITAR 15
 
+#define MAX_KEYS 88
+
 namespace YM2420 {
   uint8_t register_contents[0x39] = {0};
+  uint8_t active_oscillators[YM2420_OSCILLATORS] = {false};
+  uint8_t key_oscillators[MAX_KEYS] = {0};
+  uint8_t last_oscillator = 0;
 
   void setup() {
     pinMode(YM2420_CS, OUTPUT);
@@ -34,12 +39,12 @@ namespace YM2420 {
     for (uint8_t oscillator = 0; oscillator < YM2420_OSCILLATORS;
          oscillator++) {
       instrument.set(oscillator, INSTRUMENT_ORIGINAL);
+      octave.set(oscillator, 3);
     }
 
     sustained_sound_carrier.set(true);
     sustained_sound_modulation.set(true);
   }
-
 
   void write(uint8_t address) {
     MCP23S17::write_parallel(YM2420_CS, YM2420_ADDRESS_MODE, address);
@@ -107,37 +112,6 @@ namespace YM2420 {
     write_range(address + oscillator, first_bit, range, inverted, value);
   }
 
-
-  OscillatorFrequency::OscillatorFrequency(
-      OscillatorRange* a, uint8_t b, uint8_t c, uint8_t d, uint8_t e,
-      uint8_t f, uint8_t g):
-    octave(a), address_lsb(b), first_bit_lsb(c), range_lsb(d),
-    address_msb(e), first_bit_msb(f), range_msb(g) {
-      for (uint8_t key = 0; key < YM2420_F_NUMBER_KEYS; key++) {
-        f_numbers[key] = pow(2, (float)(key - 48) / 12) * 288.3584;
-      }
-  }
-
-  void OscillatorFrequency::set_f_number(
-      uint8_t oscillator, unsigned int f_number) {
-    write_range(
-        address_lsb + oscillator, first_bit_lsb, range_lsb, false,
-        f_number >> 4);
-    write_range(
-        address_msb + oscillator, first_bit_msb, range_msb, false,
-        f_number & 0b1111);
-  }
-
-  void OscillatorFrequency::set_key(
-      uint8_t oscillator, uint8_t key_number) {
-    uint8_t octave_number = ((int)f_numbers[key_number] / 512) + 2;
-    unsigned int f_number = f_numbers[key_number] / pow(2, octave_number);
-
-    octave->set(oscillator, octave_number);
-    set_f_number(oscillator, f_number);
-  }
-
-
   Bit amplitude_modulation_carrier    (0x00, 7);
   Bit amplitude_modulation_modulation (0x01, 7);
   Bit vibrato_carrier                 (0x00, 6);
@@ -166,12 +140,39 @@ namespace YM2420 {
   Range release_rate_modulation      (0x07, 0, 15, true);
   Range rhythm_instruments           (0x0e, 0, 31, false);
 
-  OscillatorBit sustain (0x20, 5);
-  OscillatorBit key     (0x20, 4);
+  OscillatorBit sustain  (0x20, 5);
+  OscillatorBit key_down (0x20, 4);
 
-  OscillatorRange  octave     (0x10, 5, 7,  false);
-  OscillatorRange  instrument (0x30, 4, 15, false);
-  OscillatorRange  volume     (0x30, 0, 15, true);
+  OscillatorRange  octave       (0x10, 5, 7,  false);
+  OscillatorRange  instrument   (0x30, 4, 15, false);
+  OscillatorRange  volume       (0x30, 0, 15, true);
+  OscillatorRange  f_number_lsb (0x20, 0, 15, false);
+  OscillatorRange  f_number_msb (0x10, 0, 31, false);
 
-  OscillatorFrequency frequency (&octave, 0x10, 0, 31, 0x20, 0, 15);
+  void key_on(uint8_t key) {
+    for (uint8_t oscillator_check = 0; oscillator_check < YM2420_OSCILLATORS;
+         oscillator_check++) {
+      uint8_t oscillator = (
+          oscillator_check + last_oscillator + 1) % YM2420_OSCILLATORS;
+
+      if (! active_oscillators[oscillator]) {
+        uint16_t f_number = roundf(pow(2, (float)(key - 57) / 12) * 288.3584);
+
+        f_number_lsb.set(oscillator, f_number & 0b1111);
+        f_number_msb.set(oscillator, f_number >> 4);
+        key_down.set(oscillator, true);
+
+        active_oscillators[oscillator] = true;
+        key_oscillators[key] = oscillator;
+        last_oscillator = oscillator;
+
+        break;
+      }
+    }
+  }
+
+  void key_off(uint8_t key) {
+    YM2420::key_down.set(key_oscillators[key], false);
+    active_oscillators[key_oscillators[key]] = false;
+  }
 }

@@ -28,4 +28,5 @@ void loop() {
   Menu::scan_inputs();
   Controls::apply();
   Keys::apply();
+  MIDI::process_messages();
 }

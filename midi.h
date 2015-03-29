@@ -3,16 +3,11 @@
 
 #include <stdint.h>
 
-class MIDI {
-    uint8_t channel;
-    void write_command(uint8_t);
-  public:
-    MIDI(uint8_t);
-    void set_channel(uint8_t);
-    void note_on(uint8_t);
-    void note_off(uint8_t);
-};
-
-extern MIDI midi;
+namespace MIDI {
+  extern uint8_t channel;
+  void key_on(uint8_t);
+  void key_off(uint8_t);
+  void process_messages();
+}
 
 #endif

@@ -7,10 +7,13 @@
 #define YM2420_F_NUMBER_KEYS 88
 #define YM2420_OSCILLATORS 9
 #define YM2420_PATCH_RANGE 0x08
+#define YM2420_REGISTERS 0x39
 
 namespace YM2420 {
   void setup();
   void write(uint8_t);
+  void key_on(uint8_t);
+  void key_off(uint8_t);
 
   class Bit {
       const uint8_t address;
@@ -50,27 +53,7 @@ namespace YM2420 {
       void set(uint8_t, uint8_t);
   };
 
-  class OscillatorFrequency {
-      OscillatorRange *octave;
-
-      uint8_t address_lsb;
-      uint8_t first_bit_lsb;
-      uint8_t range_lsb;
-
-      uint8_t address_msb;
-      uint8_t first_bit_msb;
-      uint8_t range_msb;
-
-      float f_numbers[YM2420_F_NUMBER_KEYS];
-    public:
-      OscillatorFrequency(
-          OscillatorRange*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t,
-          uint8_t);
-      void set_f_number(uint8_t, unsigned int);
-      void set_key(uint8_t, uint8_t);
-  };
-
-  extern uint8_t register_contents[0x39];
+  extern uint8_t register_contents[YM2420_REGISTERS];
 
   extern Bit amplitude_modulation_carrier;
   extern Bit amplitude_modulation_modulation;
@@ -106,8 +89,8 @@ namespace YM2420 {
   extern OscillatorRange octave;
   extern OscillatorRange instrument;
   extern OscillatorRange volume;
-
-  extern OscillatorFrequency frequency;
+  extern OscillatorRange f_number_lsb;
+  extern OscillatorRange f_number_msb;
 }
 
 #endif
