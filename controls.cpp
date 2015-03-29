@@ -12,11 +12,6 @@
 #define DIGITAL_CONTROL_COUNT 8
 
 namespace Controls {
-  struct analog_change {
-    uint8_t chip_select;
-    uint8_t pin;
-  };
-
   struct analog_control {
     const uint8_t chip_select;
     const uint8_t pin;
@@ -33,13 +28,6 @@ namespace Controls {
     const char* line2;
     bool value;
   };
-
-  analog_change last_analog_change = {
-    .chip_select = -1,
-    .pin = -1
-  };
-
-  uint8_t last_digital_change_pin = -1;
 
   analog_control analog_controls[ANALOG_CONTROL_COUNT] = {
       {.chip_select = MCP3008_0_CS,
@@ -184,52 +172,33 @@ namespace Controls {
   };
 
   void print_analog_control(analog_control control) {
+    char line1_padded[17];
+    sprintf(line1_padded, "%-16s", control.line1);
+    HD44780::position_print(0, 0, line1_padded);
+
+    char line2_padded[13];
+    sprintf(line2_padded, "%-12s", control.line2);
+    HD44780::position_print(0, 1, line2_padded);
+
     char percent_text[5];
     sprintf(
         percent_text, "%3d%%",
         control.value * 100 / control.ym2420_range->get_range());
-
-    if (last_analog_change.chip_select != control.chip_select ||
-        last_analog_change.pin != control.pin ||
-        Menu::temporary_message.expired) {
-      last_analog_change.chip_select = control.chip_select;
-      last_analog_change.pin = control.pin;
-
-      char line1_padded[17];
-      sprintf(line1_padded, "%-16s", control.line1);
-      HD44780::position_print(0, 0, line1_padded);
-
-      char line2_padded[13];
-      sprintf(line2_padded, "%-12s", control.line2);
-      HD44780::position_print(0, 1, line2_padded);
-
-      HD44780::print(percent_text);
-    } else {
-      HD44780::position_print(12, 1, percent_text);
-    }
+    HD44780::print(percent_text);
 
     Menu::set_temporary_message();
   }
 
   void print_digital_control(digital_control control) {
-    const char* state = control.value ? "On " : "Off";
+    char line1_padded[17];
+    sprintf(line1_padded, "%-16s", control.line1);
+    HD44780::position_print(0, 0, line1_padded);
 
-    if (last_digital_change_pin != control.pin ||
-        Menu::temporary_message.expired) {
-      last_digital_change_pin = control.pin;
+    char line2_padded[14];
+    sprintf(line2_padded, "%-13s", control.line2);
+    HD44780::position_print(0, 1, line2_padded);
 
-      char line1_padded[17];
-      sprintf(line1_padded, "%-16s", control.line1);
-      HD44780::position_print(0, 0, line1_padded);
-
-      char line2_padded[14];
-      sprintf(line2_padded, "%-13s", control.line2);
-      HD44780::position_print(0, 1, line2_padded);
-
-      HD44780::print(state);
-    } else {
-      HD44780::position_print(13, 1, state);
-    }
+    HD44780::print(control.value ? "On " : "Off");
 
     Menu::set_temporary_message();
   }
