@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "hd44780.h"
 #include "mcp23s17.h"
+#include "controls.h"
 #include "patch_storage.h"
 #include <Arduino.h>
 
@@ -10,7 +11,9 @@
 #define INPUTS_ENCODER_CW   0b00000010
 #define INPUTS_ENCODER_DOWN 0b00000100
 #define INPUTS_SAVE         0b00001000
-#define INPUTS_BACK         0b00010000
+#define INPUTS_MIDI         0b00010000
+#define INPUTS_MANUAL       0b00100000
+#define INPUTS_BACK         0b01000000
 
 #define FIRST_KEY_ROW 5
 
@@ -178,6 +181,11 @@ namespace Menu {
     if (inputs & INPUTS_SAVE) {
       uint32_t id = PatchStorage::find_next_id();
       user_write_patch(id);
+    }
+
+    if (inputs & INPUTS_MANUAL) {
+      Controls::set_current_values();
+      PatchStorage::new_patch();
     }
 
     if (inputs & INPUTS_ENCODER_CW) {

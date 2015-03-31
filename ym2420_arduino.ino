@@ -20,13 +20,12 @@ void setup() {
   PatchStorage::setup();
 
   Menu::startup_message();
-  PatchStorage::read(0);
 }
 
 void loop() {
   Menu::check_expired_message();
   Menu::scan_inputs();
-  Controls::update_all();
+  Controls::check_values();
   Keys::apply();
   MIDI::process_messages();
 }

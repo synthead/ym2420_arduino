@@ -8,7 +8,8 @@
 
 namespace PatchStorage {
   void setup();
-  char print_patch();
+  void new_patch();
+  void print_patch();
   void write(uint32_t, char*);
   void read(uint32_t);
   void read_next();

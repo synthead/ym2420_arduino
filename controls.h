@@ -8,7 +8,8 @@
 
 namespace Controls {
   void setup();
-  void update_all();
+  void set_current_values();
+  void check_values();
 
   class AnalogControl {
       const uint8_t chip_select;
@@ -18,13 +19,13 @@ namespace Controls {
       const char* line2;
       uint8_t value;
 
-      void print();
+      uint8_t read();
     public:
       AnalogControl(
           const uint8_t, const uint8_t, YM2420::Range*, const char*,
           const char*);
-      bool scan();
-      void update();
+      void set_current_value();
+      void check_value();
   };
 
   class DigitalControl {
@@ -34,11 +35,11 @@ namespace Controls {
       const char* line2;
       bool value;
 
-      void print();
+      bool read();
     public:
       DigitalControl(const uint8_t, YM2420::Bit*, const char*, const char*);
-      bool scan();
-      void update();
+      void set_current_value();
+      void check_value();
   };
 }
 

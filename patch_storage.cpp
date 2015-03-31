@@ -12,25 +12,31 @@
 #define PATCH_PATH_BYTES 22
 
 namespace PatchStorage {
-  struct current_patch_t {
-    unsigned int id;
-    char name[PATCH_NAME_LENGTH];
-    bool unsaved;
-  };
-
-  current_patch_t current_patch;
+  unsigned int current_id;
+  char current_name[PATCH_NAME_LENGTH];
+  bool modified;
 
   void setup() {
     pinMode(SDCARD_PRESENT, INPUT);
     pinMode(SDCARD_CS, OUTPUT);
 
-    read(1);
+    current_id = 0;
+    new_patch();
   }
 
-  char print_patch() {
-    char patch_number[17];
-    sprintf(patch_number, "Patch %0d:", current_patch.id);
-    HD44780::print_all(patch_number, current_patch.name);
+  void new_patch() {
+    modified = true;
+    print_patch();
+  }
+
+  void print_patch() {
+    if (modified) {
+      HD44780::print_all("Unsaved patch", "");
+    } else {
+      char patch_number[17];
+      sprintf(patch_number, "Patch %0d:", current_id);
+      HD44780::print_all(patch_number, current_name);
+    }
   }
 
   bool check_sdcard() {
@@ -83,8 +89,8 @@ namespace PatchStorage {
       }
 
       patch.close();
-      current_patch.id = id;
-      sprintf(current_patch.name, "%s", name);
+      current_id = id;
+      sprintf(current_name, "%s", name);
       print_patch();
     }
   }
@@ -97,7 +103,7 @@ namespace PatchStorage {
 
       if (patch) {
         for (uint8_t byte = 0; byte < PATCH_NAME_LENGTH; byte++) {
-          current_patch.name[byte] = patch.read();
+          current_name[byte] = patch.read();
         }
 
         for (uint8_t address = 0; address < YM2420_PATCH_RANGE; address++) {
@@ -105,7 +111,8 @@ namespace PatchStorage {
           YM2420::write(address);
         }
 
-        current_patch.id = id;
+        modified = false;
+        current_id = id;
         print_patch();
       }
 
@@ -114,7 +121,7 @@ namespace PatchStorage {
   }
 
   uint32_t find_next_id() {
-    uint32_t id = current_patch.id;
+    uint32_t id = current_id;
 
     while (++id) {
       char path[PATCH_PATH_BYTES];
@@ -126,12 +133,20 @@ namespace PatchStorage {
   }
 
   void read_next() {
-    read(current_patch.id + 1);
+    if (modified) {
+      read(current_id);
+    } else {
+      read(current_id + 1);
+    }
   }
 
   void read_previous() {
-    if (current_patch.id != 0) {
-      read(current_patch.id - 1);
+    if (modified) {
+      read(current_id);
+    } else {
+      if (current_id != 0) {
+        read(current_id - 1);
+      }
     }
   }
 }
