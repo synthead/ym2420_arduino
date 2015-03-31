@@ -3,6 +3,7 @@
 #include "mcp23s17.h"
 #include "controls.h"
 #include "patch_storage.h"
+#include "midi.h"
 #include <Arduino.h>
 
 #define MENU_MATRIX_COLUMN 7
@@ -20,30 +21,24 @@
 #define TEMP_MESSAGE_EXPIRATION 3000
 
 namespace Menu {
-  temporary_message_t temporary_message;
+  unsigned long message_expires_ms = 0;
+  uint8_t active_menu = 0;
 
   uint8_t read_encoder = false;
   uint8_t last_inputs = 0;
 
   void startup_message() {
     HD44780::print_all("Synthead YM2420", "SW version 0.1");
-    set_temporary_message();
+    set_expiration();
   }
 
-  void set_temporary_message() {
-    temporary_message.displayed_at = millis();
-    temporary_message.expired = false;
-  }
-
-  void set_menu_active(bool active) {
-    temporary_message.menu_active = active;
-    temporary_message.expired = true;
+  void set_expiration() {
+    message_expires_ms = millis() + TEMP_MESSAGE_EXPIRATION;
   }
 
   void check_expired_message() {
-    if (! temporary_message.expired &&
-        temporary_message.displayed_at + TEMP_MESSAGE_EXPIRATION < millis()) {
-      temporary_message.expired = true;
+    if (message_expires_ms && message_expires_ms < millis()) {
+      message_expires_ms = 0;
       PatchStorage::print_patch();
     }
   }
@@ -175,23 +170,54 @@ namespace Menu {
     }
   }
 
+  void midi_settings() {
+    char line2[17];
+    sprintf(line2, "Channel: %d", MIDI::channel + 1);
+    HD44780::print_all("MIDI settings:", line2);
+  }
+
   void scan_inputs() {
     uint8_t inputs = new_inputs();
 
-    if (inputs & INPUTS_SAVE) {
-      uint32_t id = PatchStorage::find_next_id();
-      user_write_patch(id);
-    }
+    switch (active_menu) {
+      case INPUTS_MIDI:
+        if (inputs & INPUTS_ENCODER_CW) {
+          MIDI::next_channel();
+          midi_settings();
+        } else if (inputs & INPUTS_ENCODER_CCW) {
+          MIDI::previous_channel();
+          midi_settings();
+        }
 
-    if (inputs & INPUTS_MANUAL) {
-      Controls::set_current_values();
-      PatchStorage::new_patch();
-    }
+        if (inputs & INPUTS_BACK) {
+          active_menu = 0;
+          PatchStorage::print_patch();
+        }
 
-    if (inputs & INPUTS_ENCODER_CW) {
-      PatchStorage::read_next();
-    } else if (inputs & INPUTS_ENCODER_CCW) {
-      PatchStorage::read_previous();
+        break;
+      case 0:
+        if (inputs & INPUTS_SAVE) {
+          uint32_t id = PatchStorage::find_next_id();
+          user_write_patch(id);
+        }
+
+        if (inputs & INPUTS_MIDI) {
+          active_menu = INPUTS_MIDI;
+          midi_settings();
+        }
+
+        if (inputs & INPUTS_MANUAL) {
+          Controls::set_current_values();
+          PatchStorage::new_patch();
+        }
+
+        if (inputs & INPUTS_ENCODER_CW) {
+          PatchStorage::read_next();
+        } else if (inputs & INPUTS_ENCODER_CCW) {
+          PatchStorage::read_previous();
+        }
+
+        break;
     }
   }
 }

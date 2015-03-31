@@ -42,7 +42,7 @@ namespace PatchStorage {
   bool check_sdcard() {
     if (digitalRead(SDCARD_PRESENT)) {
       HD44780::print_all("No SD card", "inserted!");
-      Menu::set_temporary_message();
+      Menu::set_expiration();
       return false;
     }
 
@@ -57,14 +57,14 @@ namespace PatchStorage {
           char line2[17];
           sprintf(line2, "/%s dir!", PATCHES_DIRECTORY);
           HD44780::print_all("Problem creating", line2);
-          Menu::set_temporary_message();
+          Menu::set_expiration();
           return false;
         }
       } else {
         char line1[17];
         sprintf(line1, "/%s dir", PATCHES_DIRECTORY);
         HD44780::print_all(line1, "doesn't exist!");
-        Menu::set_temporary_message();
+        Menu::set_expiration();
         return false;
       }
     }

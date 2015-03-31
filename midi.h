@@ -5,6 +5,9 @@
 
 namespace MIDI {
   extern uint8_t channel;
+
+  void next_channel();
+  void previous_channel();
   void key_on(uint8_t);
   void key_off(uint8_t);
   void process_messages();

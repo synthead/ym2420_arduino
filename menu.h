@@ -2,18 +2,13 @@
 #define MENU_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 namespace Menu {
-  struct temporary_message_t {
-    unsigned long displayed_at;
-    bool expired;
-    bool menu_active;
-  };
-
-  extern temporary_message_t temporary_message;
+  extern uint8_t active_menu;
 
   void startup_message();
-  void set_temporary_message();
+  void set_expiration();
   void check_expired_message();
   void scan_inputs();
 }

@@ -42,7 +42,7 @@ namespace Controls {
       value = new_value;
       ym2420_range->set(new_value);
 
-      if (! Menu::temporary_message.menu_active) {
+      if (! Menu::active_menu) {
         HD44780::position_print(0, 0, line1);
         HD44780::position_print(0, 1, line2);
 
@@ -50,7 +50,7 @@ namespace Controls {
         sprintf(percent_text, "%3d%%", value * 100 / ym2420_range->get_range());
         HD44780::print(percent_text);
 
-        Menu::set_temporary_message();
+        Menu::set_expiration();
       }
     }
   }
@@ -75,12 +75,12 @@ namespace Controls {
       value = new_value;
       ym2420_bit->set(new_value);
 
-      if (! Menu::temporary_message.menu_active) {
+      if (! Menu::active_menu) {
         HD44780::position_print(0, 0, line1);
         HD44780::position_print(0, 1, line2);
         HD44780::print(value ? "On " : "Off");
 
-        Menu::set_temporary_message();
+        Menu::set_expiration();
       }
     }
   }

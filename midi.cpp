@@ -8,11 +8,24 @@
 #define MIDI_NOTE_OFF_VELOCITY 0x00
 #define MIDI_NOTE_ON_VELOCITY 0x7f
 
+#define MIDI_CHANNEL_MAX 15
+
 namespace MIDI {
   uint8_t channel = 0;
-
   uint8_t command = 0;
   int8_t parameter_1 = -1;
+
+  void next_channel() {
+    if (channel < MIDI_CHANNEL_MAX) {
+      channel++;
+    }
+  }
+
+  void previous_channel() {
+    if (channel > 0) {
+      channel--;
+    }
+  }
 
   void write_command(uint8_t command) {
     Serial1.write(command + channel);
