@@ -27,7 +27,7 @@ namespace PatchStorage {
   void new_patch() {
     modified = true;
     memset(current_name, ' ', PATCH_NAME_LENGTH);
-    current_name[PATCH_NAME_LENGTH] = '\0';
+    current_name[PATCH_NAME_LENGTH] = NULL;
 
     print_patch();
   }

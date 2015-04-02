@@ -68,7 +68,7 @@ namespace Menu {
   }
 
   void user_write_patch(uint32_t id) {
-    char user_input = '\0';
+    char user_input = NULL;
     uint8_t keys[6];
     uint8_t last_keys[6] = {0};
     uint8_t cursor_position = 0;
@@ -127,13 +127,13 @@ namespace Menu {
         }
       }
 
-      if (user_input != '\0') {
+      if (user_input != NULL) {
         char character[2];
         sprintf(character, "%c", user_input);
         HD44780::position_print(cursor_position, 1, character);
 
         name[cursor_position] = user_input;
-        user_input = '\0';
+        user_input = NULL;
 
         if (cursor_position == PATCH_NAME_LENGTH - 1) {
           HD44780::position(PATCH_NAME_LENGTH - 1, 1);
