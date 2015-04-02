@@ -13,7 +13,7 @@
 
 namespace PatchStorage {
   unsigned int current_id;
-  char current_name[PATCH_NAME_LENGTH];
+  char current_name[PATCH_NAME_LENGTH + 1];
   bool modified;
 
   void setup() {
@@ -26,6 +26,9 @@ namespace PatchStorage {
 
   void new_patch() {
     modified = true;
+    memset(current_name, ' ', PATCH_NAME_LENGTH);
+    current_name[PATCH_NAME_LENGTH] = '\0';
+
     print_patch();
   }
 
@@ -34,7 +37,7 @@ namespace PatchStorage {
       HD44780::print_all("Unsaved patch", "");
     } else {
       char patch_number[17];
-      sprintf(patch_number, "Patch %0d:", current_id);
+      sprintf(patch_number, "Patch %d:", current_id);
       HD44780::print_all(patch_number, current_name);
     }
   }
@@ -89,8 +92,9 @@ namespace PatchStorage {
       }
 
       patch.close();
+
       current_id = id;
-      sprintf(current_name, "%s", name);
+      strcpy(current_name, name);
       print_patch();
     }
   }

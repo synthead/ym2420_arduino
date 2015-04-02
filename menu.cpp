@@ -68,13 +68,6 @@ namespace Menu {
   }
 
   void user_write_patch(uint32_t id) {
-    char line1[17];
-    sprintf(line1, "Saving %d:", id);
-    HD44780::print_all(line1, "");
-    HD44780::cursor(true);
-    HD44780::position(0, 1);
-
-    char name[PATCH_NAME_LENGTH + 1];
     char user_input = '\0';
     uint8_t keys[6];
     uint8_t last_keys[6] = {0};
@@ -82,12 +75,14 @@ namespace Menu {
     bool shift = false;
     bool last_shift = false;
     bool shift_used = false;
+    char name[PATCH_NAME_LENGTH + 1];
+    strcpy(name, PatchStorage::current_name);
 
-    uint8_t space;
-    for (space = 0; space < PATCH_NAME_LENGTH; space++) {
-      name[space] = ' ';
-    }
-    name[space] = '\0';
+    char line1[17];
+    sprintf(line1, "Saving %d:", id);
+    HD44780::print_all(line1, name);
+    HD44780::cursor(true);
+    HD44780::position(0, 1);
 
     while (true) {
       for (uint8_t column = 0; column < 6; column++) {
@@ -149,6 +144,7 @@ namespace Menu {
       }
 
       uint8_t inputs = new_inputs();
+
       if (inputs & INPUTS_ENCODER_CCW && cursor_position != 0) {
         cursor_position--;
         HD44780::position(cursor_position, 1);
@@ -199,6 +195,10 @@ namespace Menu {
         if (inputs & INPUTS_SAVE) {
           uint32_t id = PatchStorage::find_next_id();
           user_write_patch(id);
+        }
+
+        if (inputs & INPUTS_ENCODER_DOWN) {
+          user_write_patch(PatchStorage::current_id);
         }
 
         if (inputs & INPUTS_MIDI) {

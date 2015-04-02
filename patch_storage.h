@@ -7,6 +7,9 @@
 #define PATCH_NAME_LENGTH 16
 
 namespace PatchStorage {
+  extern unsigned int current_id;
+  extern char current_name[PATCH_NAME_LENGTH + 1];
+
   void setup();
   void new_patch();
   void print_patch();
