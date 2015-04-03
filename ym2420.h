@@ -6,8 +6,9 @@
 
 #define YM2420_F_NUMBER_KEYS 88
 #define YM2420_OSCILLATORS 9
-#define YM2420_PATCH_RANGE 0x08
 #define YM2420_REGISTERS 0x39
+
+#define YM2420_PATCH_BYTES 8
 
 namespace YM2420 {
   void setup();

@@ -8,8 +8,8 @@
 #define SDCARD_PRESENT 9
 #define SDCARD_CS 8
 
-#define PATCHES_DIRECTORY "YM2420"
-#define PATCH_PATH_BYTES 22
+#define PATCHES_FILE_PATH "YM2420.DAT"
+#define PATCH_BYTES (PATCH_NAME_LENGTH + YM2420_PATCH_BYTES)
 
 namespace PatchStorage {
   unsigned int current_id;
@@ -53,46 +53,23 @@ namespace PatchStorage {
     return true;
   }
 
-  bool check_patch_dir(bool create) {
-    if (! SD.exists(PATCHES_DIRECTORY)) {
-      if (create) {
-        if (! SD.mkdir(PATCHES_DIRECTORY)) {
-          char line2[17];
-          sprintf(line2, "/%s dir!", PATCHES_DIRECTORY);
-          HD44780::print_all("Problem creating", line2);
-          Menu::set_expiration();
-          return false;
-        }
-      } else {
-        char line1[17];
-        sprintf(line1, "/%s dir", PATCHES_DIRECTORY);
-        HD44780::print_all(line1, "doesn't exist!");
-        Menu::set_expiration();
-        return false;
-      }
-    }
-
-    File check_dir = SD.open(PATCHES_DIRECTORY);
-    bool is_dir = check_dir.isDirectory();
-    check_dir.close();
-
-    return is_dir;
-  }
-
   void write(uint32_t id, char* name) {
-    if (check_sdcard() && check_patch_dir(true)) {
-      char path[PATCH_PATH_BYTES];
-      sprintf(path, "%s/%08d.DAT", PATCHES_DIRECTORY, id);
-      File patch = SD.open(path, O_WRITE | O_CREAT | O_TRUNC);
+    if (check_sdcard()) {
+      File patches_file = SD.open(PATCHES_FILE_PATH, FILE_WRITE);
+      if (id == FIND_NEXT_ID) {
+        id = patches_file.size() / PATCH_BYTES;
+      }
+      patches_file.seek(PATCH_BYTES * id);
 
-      patch.write(name);
+      patches_file.write(name);
 
-      for (uint8_t byte = 0; byte < YM2420_PATCH_RANGE; byte++) {
-        patch.write(YM2420::register_contents[byte]);
+      for (uint8_t byte = 0; byte < YM2420_PATCH_BYTES; byte++) {
+        patches_file.write(YM2420::register_contents[byte]);
       }
 
-      patch.close();
+      patches_file.close();
 
+      modified = false;
       current_id = id;
       strcpy(current_name, name);
       print_patch();
@@ -100,19 +77,22 @@ namespace PatchStorage {
   }
 
   void read(uint32_t id) {
-    if (check_sdcard() && check_patch_dir(false)) {
-      char path[PATCH_PATH_BYTES];
-      sprintf(path, "%s/%08d.DAT", PATCHES_DIRECTORY, id);
-      File patch = SD.open(path);
+    if (check_sdcard()) {
+      File patches_file = SD.open(PATCHES_FILE_PATH);
 
-      if (patch) {
+      if (! patches_file) {
+        HD44780::print_all("No patches exist", "on SD card!");
+        Menu::set_expiration();
+      } else if (patches_file.size() / PATCH_BYTES > id) {
+        patches_file.seek(PATCH_BYTES * id);
+
         for (uint8_t byte = 0; byte < PATCH_NAME_LENGTH; byte++) {
-          current_name[byte] = patch.read();
+          current_name[byte] = patches_file.read();
         }
 
-        for (uint8_t address = 0; address < YM2420_PATCH_RANGE; address++) {
-          YM2420::register_contents[address] = patch.read();
-          YM2420::write(address);
+        for (uint8_t byte = 0; byte < YM2420_PATCH_BYTES; byte++) {
+          YM2420::register_contents[byte] = patches_file.read();
+          YM2420::write(byte);
         }
 
         modified = false;
@@ -120,19 +100,7 @@ namespace PatchStorage {
         print_patch();
       }
 
-      patch.close();
-    }
-  }
-
-  uint32_t find_next_id() {
-    uint32_t id = current_id;
-
-    while (++id) {
-      char path[PATCH_PATH_BYTES];
-      sprintf(path, "%s/%08d.DAT", PATCHES_DIRECTORY, id);
-      if (! SD.exists(path)) {
-        return id;
-      }
+      patches_file.close();
     }
   }
 

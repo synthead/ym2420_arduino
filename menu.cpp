@@ -76,13 +76,19 @@ namespace Menu {
     bool last_shift = false;
     bool shift_used = false;
     char name[PATCH_NAME_LENGTH + 1];
+
     strcpy(name, PatchStorage::current_name);
 
-    char line1[17];
-    sprintf(line1, "Saving %d:", id);
-    HD44780::print_all(line1, name);
-    HD44780::cursor(true);
+    if (id == FIND_NEXT_ID) {
+      HD44780::print_all("Save new patch:", name);
+    } else {
+      char line1[17];
+      sprintf(line1, "Update %d:", id);
+      HD44780::print_all(line1, name);
+    }
+
     HD44780::position(0, 1);
+    HD44780::cursor(true);
 
     while (true) {
       for (uint8_t column = 0; column < 6; column++) {
@@ -193,8 +199,7 @@ namespace Menu {
         break;
       case 0:
         if (inputs & INPUTS_SAVE) {
-          uint32_t id = PatchStorage::find_next_id();
-          user_write_patch(id);
+          user_write_patch(FIND_NEXT_ID);
         }
 
         if (inputs & INPUTS_ENCODER_DOWN) {

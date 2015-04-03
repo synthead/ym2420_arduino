@@ -6,6 +6,8 @@
 
 #define PATCH_NAME_LENGTH 16
 
+#define FIND_NEXT_ID -1
+
 namespace PatchStorage {
   extern unsigned int current_id;
   extern char current_name[PATCH_NAME_LENGTH + 1];
@@ -17,7 +19,6 @@ namespace PatchStorage {
   void read(uint32_t);
   void read_next();
   void read_previous();
-  uint32_t find_next_id();
 }
 
 #endif
