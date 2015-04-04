@@ -6,6 +6,9 @@
 #define KEY_COLUMNS 6
 #define KEY_ROWS 7
 
+#define KEY_OFF_VELOCITY MIDI_DATA_BYTE_MIN
+#define KEY_ON_VELOCITY MIDI_DATA_BYTE_MAX
+
 namespace Keys {
   uint8_t keys[KEY_COLUMNS] = {0};
 
@@ -22,10 +25,10 @@ namespace Keys {
 
             if ((keys[column] >> row) & 0b1) {
               YM2420::key_on(key, YM2420::volume.get_range());
-              MIDI::key_on(key);
+              MIDI::key_on(key, KEY_ON_VELOCITY);
             } else {
               YM2420::key_off(key);
-              MIDI::key_off(key);
+              MIDI::key_off(key, KEY_OFF_VELOCITY);
             }
           }
         }
