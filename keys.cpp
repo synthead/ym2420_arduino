@@ -21,7 +21,7 @@ namespace Keys {
             uint8_t key = row * 6 + column + 7;
 
             if ((keys[column] >> row) & 0b1) {
-              YM2420::key_on(key);
+              YM2420::key_on(key, YM2420::volume.get_range());
               MIDI::key_on(key);
             } else {
               YM2420::key_off(key);

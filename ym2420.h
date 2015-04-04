@@ -13,7 +13,7 @@
 namespace YM2420 {
   void setup();
   void write(uint8_t);
-  void key_on(uint8_t);
+  void key_on(uint8_t, uint8_t);
   void key_off(uint8_t);
 
   class Bit {

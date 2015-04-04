@@ -5,8 +5,10 @@
 #define MIDI_NOTE_OFF 0x80
 #define MIDI_NOTE_ON 0x90
 
+#define MIDI_MAX_VELOCITY 0x7f
+
 #define MIDI_NOTE_OFF_VELOCITY 0x00
-#define MIDI_NOTE_ON_VELOCITY 0x7f
+#define MIDI_NOTE_ON_VELOCITY MIDI_MAX_VELOCITY
 
 #define MIDI_CHANNEL_MAX 15
 
@@ -64,7 +66,9 @@ namespace MIDI {
         switch (command) {
           case MIDI_NOTE_ON:
             if (midi_data > 0x00) {
-              YM2420::key_on(parameter_1);
+              YM2420::key_on(
+                  parameter_1,
+                  midi_data * YM2420::volume.get_range() / MIDI_MAX_VELOCITY);
             } else {
               YM2420::key_off(parameter_1);
             }

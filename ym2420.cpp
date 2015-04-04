@@ -149,7 +149,7 @@ namespace YM2420 {
   OscillatorRange  f_number_lsb (0x20, 0, 15, false);
   OscillatorRange  f_number_msb (0x10, 0, 31, false);
 
-  void key_on(uint8_t key) {
+  void key_on(uint8_t key, uint8_t velocity) {
     for (uint8_t oscillator_check = 0; oscillator_check < YM2420_OSCILLATORS;
          oscillator_check++) {
       uint8_t oscillator = (
@@ -160,6 +160,7 @@ namespace YM2420 {
 
         f_number_lsb.set(oscillator, f_number & 0b1111);
         f_number_msb.set(oscillator, f_number >> 4);
+        volume.set(oscillator, velocity);
         key_down.set(oscillator, true);
 
         active_oscillators[oscillator] = true;
