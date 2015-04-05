@@ -25,10 +25,10 @@ namespace Keys {
 
             if ((keys[column] >> row) & 0b1) {
               YM2420::key_on(key, YM2420::volume.get_range());
-              MIDI::key_on(key, KEY_ON_VELOCITY);
+              MIDI::send(MIDI_NOTE_ON, key, KEY_ON_VELOCITY);
             } else {
               YM2420::key_off(key);
-              MIDI::key_off(key, KEY_OFF_VELOCITY);
+              MIDI::send(MIDI_NOTE_ON, key, KEY_OFF_VELOCITY);
             }
           }
         }
