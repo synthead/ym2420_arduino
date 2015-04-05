@@ -82,9 +82,9 @@ namespace Menu {
     if (id == FIND_NEXT_ID) {
       HD44780::print_all("Save new patch:", name);
     } else {
-      char line1[17];
-      sprintf(line1, "Update %d:", id);
-      HD44780::print_all(line1, name);
+      char line_1[17];
+      sprintf(line_1, "Update %d:", id);
+      HD44780::print_all(line_1, name);
     }
 
     HD44780::position(0, 1);
@@ -173,9 +173,9 @@ namespace Menu {
   }
 
   void midi_settings() {
-    char line2[17];
-    sprintf(line2, "Channel: %d", MIDI::channel + 1);
-    HD44780::print_all("MIDI settings:", line2);
+    char line_2[17];
+    sprintf(line_2, "Channel: %d", MIDI::channel + 1);
+    HD44780::print_all("MIDI settings:", line_2);
   }
 
   void scan_inputs() {

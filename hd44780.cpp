@@ -33,12 +33,12 @@ namespace HD44780 {
     print(text);
   }
 
-  void print_all(const char* line1, const char* line2) {
+  void print_all(const char* line_1, const char* line_2) {
     char line_padded[17];
-    sprintf(line_padded, "%-16s", line1);
+    sprintf(line_padded, "%-16s", line_1);
     position_print(0, 0, line_padded);
 
-    sprintf(line_padded, "%-16s", line2);
+    sprintf(line_padded, "%-16s", line_2);
     position_print(0, 1, line_padded);
   }
 

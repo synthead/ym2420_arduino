@@ -25,7 +25,8 @@ namespace Controls {
   AnalogControl::AnalogControl(
       const uint8_t a, const uint8_t b, const uint8_t c, YM2420::Range* d,
       const char* e, const char* f):
-    chip_select(a), pin(b), midi_cc(c), ym2420_range(d), line1(e), line2(f) {}
+    chip_select(a), pin(b), cc_number(c), ym2420_range(d), line_1(e), line_2(f)
+    {}
 
   uint8_t AnalogControl::get_midi_value() {
     return MCP3008::read_midi_value(chip_select, pin);
@@ -47,7 +48,7 @@ namespace Controls {
 
     if (new_midi_value != midi_value) {
       midi_value = get_midi_value();
-      MIDI::send(MIDI_CONTROLLER, midi_cc, midi_value);
+      MIDI::send(MIDI_CC, cc_number, midi_value);
 
       uint8_t new_param_value = get_param_value();
 
@@ -56,8 +57,8 @@ namespace Controls {
         ym2420_range->set(param_value);
 
         if (! Menu::active_menu) {
-          HD44780::position_print(0, 0, line1);
-          HD44780::position_print(0, 1, line2);
+          HD44780::position_print(0, 0, line_1);
+          HD44780::position_print(0, 1, line_2);
 
           char percent_text[5];
           sprintf(
@@ -74,7 +75,7 @@ namespace Controls {
   DigitalControl::DigitalControl(
       const uint8_t a, const uint8_t b, YM2420::Bit* c, const char* d,
       const char* e):
-    pin(a), midi_cc(b), ym2420_bit(c), line1(d), line2(e) {}
+    pin(a), cc_number(b), ym2420_bit(c), line_1(d), line_2(e) {}
 
   bool DigitalControl::read() {
     return (digital_values >> pin) & 1;
@@ -92,12 +93,12 @@ namespace Controls {
       value = new_value;
       ym2420_bit->set(new_value);
       MIDI::send(
-          MIDI_CONTROLLER, midi_cc,
+          MIDI_CC, cc_number,
           value ? MIDI_DATA_BYTE_MAX : MIDI_DATA_BYTE_MIN);
 
       if (! Menu::active_menu) {
-        HD44780::position_print(0, 0, line1);
-        HD44780::position_print(0, 1, line2);
+        HD44780::position_print(0, 0, line_1);
+        HD44780::position_print(0, 1, line_2);
         HD44780::print(value ? "On " : "Off");
 
         Menu::set_expiration();

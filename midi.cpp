@@ -81,7 +81,7 @@ namespace MIDI {
         switch (command_received) {
           case MIDI_NOTE_OFF:
           case MIDI_NOTE_ON:
-          case MIDI_CONTROLLER:
+          case MIDI_CC:
             parameter_1_received = midi_data;
             break;
         }
@@ -99,7 +99,7 @@ namespace MIDI {
           case MIDI_NOTE_OFF:
             YM2420::key_off(parameter_1_received);
             break;
-          case MIDI_CONTROLLER:
+          case MIDI_CC:
             if (parameter_1_received >= MIDI_CC_ANALOG_MIN &&
                 parameter_1_received <= MIDI_CC_ANALOG_MAX) {
               YM2420::Range* range = analog_controls[
