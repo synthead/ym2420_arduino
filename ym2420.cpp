@@ -143,11 +143,11 @@ namespace YM2420 {
   OscillatorBit sustain  (0x20, 5);
   OscillatorBit key_down (0x20, 4);
 
-  OscillatorRange  octave       (0x10, 5, 7,  false);
-  OscillatorRange  instrument   (0x30, 4, 15, false);
-  OscillatorRange  volume       (0x30, 0, 15, true);
-  OscillatorRange  f_number_lsb (0x20, 0, 15, false);
-  OscillatorRange  f_number_msb (0x10, 0, 31, false);
+  OscillatorRange octave       (0x10, 5, 7,  false);
+  OscillatorRange instrument   (0x30, 4, 15, false);
+  OscillatorRange volume       (0x30, 0, 15, true);
+  OscillatorRange f_number_lsb (0x20, 0, 15, false);
+  OscillatorRange f_number_msb (0x10, 0, 31, false);
 
   void key_on(uint8_t key, uint8_t velocity) {
     for (uint8_t oscillator_check = 0; oscillator_check < YM2420_OSCILLATORS;
