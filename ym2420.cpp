@@ -27,7 +27,7 @@
 #define MAX_KEYS 88
 
 namespace YM2420 {
-  uint8_t register_contents[0x39] = {0};
+  uint8_t register_contents[YM2420_REGISTERS] = {0};
   uint8_t active_oscillators[YM2420_OSCILLATORS] = {false};
   uint8_t key_oscillators[MAX_KEYS] = {0};
   uint8_t last_oscillator = 0;
