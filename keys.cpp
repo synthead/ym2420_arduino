@@ -11,6 +11,7 @@
 
 namespace Keys {
   uint8_t keys[KEY_COLUMNS] = {0};
+  uint8_t oscillators[KEY_COLUMNS][KEY_ROWS];
 
   void apply() {
     for (uint8_t column = 0; column < KEY_COLUMNS; column++) {
@@ -24,10 +25,11 @@ namespace Keys {
             uint8_t key = row * 6 + column + 7;
 
             if ((keys[column] >> row) & 0b1) {
-              YM2420::key_on(key, YM2420::volume.get_range());
+              oscillators[column][row] = YM2420::oscillator_on(
+                  key, YM2420::volume.get_range());
               MIDI::send(MIDI_NOTE_ON, key, KEY_ON_VELOCITY);
             } else {
-              YM2420::key_off(key);
+              YM2420::oscillator_off(oscillators[column][row]);
               MIDI::send(MIDI_NOTE_ON, key, KEY_OFF_VELOCITY);
             }
           }

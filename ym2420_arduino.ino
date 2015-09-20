@@ -18,6 +18,7 @@ void setup() {
   YM2420::setup();
   Controls::setup();
   PatchStorage::setup();
+  MIDI::setup();
 
   Menu::startup_message();
 }

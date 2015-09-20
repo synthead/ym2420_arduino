@@ -16,6 +16,7 @@ namespace MIDI {
   uint8_t last_command_out = 0;
   uint8_t command_in = 0;
   int8_t parameter_1_in = -1;
+  uint8_t oscillators[MIDI_DATA_BYTE_MAX] = {0};
 
   namespace CC {
     uint8_t multi_sample_wave_carrier       = 12;
@@ -42,6 +43,13 @@ namespace MIDI {
     uint8_t vibrato_modulation              = 31;
     uint8_t wave_distortion_modulation      = 32;
     uint8_t rate_key_scale_modulation       = 33;
+  }
+
+  void setup() {
+    for (uint8_t oscillator = 0; oscillator < MIDI_DATA_BYTE_MAX;
+         oscillator++) {
+      oscillators[oscillator] = YM2420_NO_OSCILLATOR;
+    }
   }
 
   void next_channel() {
@@ -74,6 +82,13 @@ namespace MIDI {
     bit->set(midi_value >= 64);
   }
 
+  void ym2420_oscillator_off(int8_t parameter_1_in) {
+    if (oscillators[parameter_1_in] != YM2420_NO_OSCILLATOR) {
+      YM2420::oscillator_off(oscillators[parameter_1_in]);
+      oscillators[parameter_1_in] = YM2420_NO_OSCILLATOR;
+    }
+  }
+
   void process_messages() {
     while (Serial1.available() > 0) {
       uint8_t midi_data = Serial1.read();
@@ -96,15 +111,15 @@ namespace MIDI {
         switch (command_in) {
           case MIDI_NOTE_ON:
             if (midi_data > 0x00) {
-              YM2420::key_on(
+              oscillators[parameter_1_in] = YM2420::oscillator_on(
                   parameter_1_in,
                   midi_data * YM2420::volume.get_range() / MIDI_DATA_BYTE_MAX);
             } else {
-              YM2420::key_off(parameter_1_in);
+              MIDI::ym2420_oscillator_off(parameter_1_in);
             }
             break;
           case MIDI_NOTE_OFF:
-            YM2420::key_off(parameter_1_in);
+            MIDI::ym2420_oscillator_off(parameter_1_in);
             break;
           case MIDI_CC:
             bool cc_found = false;

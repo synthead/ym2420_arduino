@@ -24,12 +24,9 @@
 #define INSTRUMENT_ACOUSTIC_BASS 14
 #define INSTRUMENT_ELECTRIC_GUITAR 15
 
-#define MAX_KEYS 88
-
 namespace YM2420 {
   uint8_t register_contents[YM2420_REGISTERS] = {0};
   uint8_t active_oscillators[YM2420_OSCILLATORS] = {false};
-  uint8_t key_oscillators[MAX_KEYS] = {0};
   uint8_t last_oscillator = 0;
 
   void setup() {
@@ -149,7 +146,7 @@ namespace YM2420 {
   OscillatorRange f_number_lsb (0x20, 0, 15, false);
   OscillatorRange f_number_msb (0x10, 0, 31, false);
 
-  void key_on(uint8_t key, uint8_t velocity) {
+  uint8_t oscillator_on(uint8_t key, uint8_t velocity) {
     for (uint8_t oscillator_check = 0; oscillator_check < YM2420_OSCILLATORS;
          oscillator_check++) {
       uint8_t oscillator = (
@@ -164,16 +161,17 @@ namespace YM2420 {
         key_down.set(oscillator, true);
 
         active_oscillators[oscillator] = true;
-        key_oscillators[key] = oscillator;
         last_oscillator = oscillator;
 
-        break;
+        return oscillator;
       }
     }
+
+    return YM2420_NO_OSCILLATOR;
   }
 
-  void key_off(uint8_t key) {
-    YM2420::key_down.set(key_oscillators[key], false);
-    active_oscillators[key_oscillators[key]] = false;
+  void oscillator_off(uint8_t oscillator) {
+    YM2420::key_down.set(oscillator, false);
+    active_oscillators[oscillator] = false;
   }
 }
