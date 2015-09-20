@@ -16,6 +16,7 @@ namespace YM2420 {
   void write(uint8_t);
   uint8_t oscillator_on(uint8_t, uint8_t);
   void oscillator_off(uint8_t);
+  void panic();
 
   class Bit {
       const uint8_t address;

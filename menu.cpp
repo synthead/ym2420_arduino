@@ -4,6 +4,7 @@
 #include "controls.h"
 #include "patch_storage.h"
 #include "midi.h"
+#include "ym2420.h"
 #include <Arduino.h>
 
 #define MENU_MATRIX_COLUMN 7
@@ -15,6 +16,7 @@
 #define INPUTS_MIDI         0b00010000
 #define INPUTS_MANUAL       0b00100000
 #define INPUTS_BACK         0b01000000
+#define INPUTS_PANIC        0b10000000
 
 #define FIRST_KEY_ROW 5
 
@@ -180,6 +182,10 @@ namespace Menu {
 
   void scan_inputs() {
     uint8_t inputs = new_inputs();
+
+    if (inputs & INPUTS_PANIC) {
+      YM2420::panic();
+    }
 
     switch (active_menu) {
       case INPUTS_MIDI:

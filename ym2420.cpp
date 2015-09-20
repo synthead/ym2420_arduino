@@ -174,4 +174,13 @@ namespace YM2420 {
     YM2420::key_down.set(oscillator, false);
     active_oscillators[oscillator] = false;
   }
+
+  void panic() {
+    for (uint8_t oscillator = 0; oscillator < YM2420_OSCILLATORS;
+         oscillator++) {
+      if (active_oscillators[oscillator]) {
+        oscillator_off(oscillator);
+      }
+    }
+  }
 }
