@@ -115,11 +115,11 @@ namespace MIDI {
                   parameter_1_in,
                   midi_data * YM2420::volume.get_range() / MIDI_DATA_BYTE_MAX);
             } else {
-              MIDI::ym2420_oscillator_off(parameter_1_in);
+              ym2420_oscillator_off(parameter_1_in);
             }
             break;
           case MIDI_NOTE_OFF:
-            MIDI::ym2420_oscillator_off(parameter_1_in);
+            ym2420_oscillator_off(parameter_1_in);
             break;
           case MIDI_CC:
             bool cc_found = false;
