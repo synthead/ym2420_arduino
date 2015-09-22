@@ -175,7 +175,7 @@ namespace YM2420 {
   }
 
   void oscillator_off(uint8_t oscillator) {
-    YM2420::key_down.set(oscillator, false);
+    key_down.set(oscillator, false);
     active_oscillators[oscillator] = false;
   }
 
