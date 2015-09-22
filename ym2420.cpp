@@ -6,6 +6,7 @@
 #define YM2420_ADDRESS_MODE false
 
 #define YM2420_CS 3
+#define YM2420_IC 10
 
 #define INSTRUMENT_ORIGINAL 0
 #define INSTRUMENT_VIOLIN 1
@@ -32,6 +33,9 @@ namespace YM2420 {
   void setup() {
     pinMode(YM2420_CS, OUTPUT);
     digitalWrite(YM2420_CS, HIGH);
+
+    pinMode(YM2420_IC, OUTPUT);
+    digitalWrite(YM2420_IC, HIGH);
 
     for (uint8_t oscillator = 0; oscillator < YM2420_OSCILLATORS;
          oscillator++) {
@@ -176,11 +180,17 @@ namespace YM2420 {
   }
 
   void panic() {
+    digitalWrite(YM2420_IC, LOW);
+
     for (uint8_t oscillator = 0; oscillator < YM2420_OSCILLATORS;
          oscillator++) {
-      if (active_oscillators[oscillator]) {
-        oscillator_off(oscillator);
-      }
+      active_oscillators[oscillator] = false;
+    }
+
+    setup();
+
+    for (uint8_t address = 0x00; address < YM2420_PATCH_BYTES; address++) {
+      write(address);
     }
   }
 }

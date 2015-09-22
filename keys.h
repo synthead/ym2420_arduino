@@ -3,6 +3,7 @@
 
 namespace Keys {
   void apply();
+  void panic();
 }
 
 #endif

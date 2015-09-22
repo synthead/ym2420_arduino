@@ -14,6 +14,7 @@ namespace MIDI {
   extern uint8_t channel;
 
   void setup();
+  void panic();
   void next_channel();
   void previous_channel();
   void send(uint8_t, uint8_t, uint8_t);

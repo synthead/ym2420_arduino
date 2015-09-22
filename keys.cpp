@@ -13,6 +13,12 @@ namespace Keys {
   uint8_t keys[KEY_COLUMNS] = {0};
   uint8_t oscillators[KEY_COLUMNS][KEY_ROWS];
 
+  void panic() {
+    for (uint8_t key = 0; key < KEY_COLUMNS; key++) {
+      keys[key] = 0;
+    }
+  }
+
   void apply() {
     for (uint8_t column = 0; column < KEY_COLUMNS; column++) {
       uint8_t last_keys = keys[column];

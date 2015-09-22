@@ -4,6 +4,7 @@
 #include "controls.h"
 #include "patch_storage.h"
 #include "midi.h"
+#include "keys.h"
 #include "ym2420.h"
 #include <Arduino.h>
 
@@ -184,6 +185,8 @@ namespace Menu {
     uint8_t inputs = new_inputs();
 
     if (inputs & INPUTS_PANIC) {
+      MIDI::setup();
+      Keys::panic();
       YM2420::panic();
     }
 
