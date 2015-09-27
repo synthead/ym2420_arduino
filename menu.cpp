@@ -2,7 +2,7 @@
 #include "hd44780.h"
 #include "mcp23s17.h"
 #include "controls.h"
-#include "patch_storage.h"
+#include "storage.h"
 #include "midi.h"
 #include "keys.h"
 #include "ym2420.h"
@@ -42,7 +42,7 @@ namespace Menu {
   void check_expired_message() {
     if (message_expires_ms && message_expires_ms < millis()) {
       message_expires_ms = 0;
-      PatchStorage::print_patch();
+      Storage::Patches::print_patch();
     }
   }
 
@@ -80,7 +80,7 @@ namespace Menu {
     bool shift_used = false;
     char name[PATCH_NAME_LENGTH + 1];
 
-    strcpy(name, PatchStorage::current_name);
+    strcpy(name, Storage::Patches::current_name);
 
     if (id == FIND_NEXT_ID) {
       HD44780::print_all("Save new patch:", name);
@@ -164,12 +164,12 @@ namespace Menu {
       }
 
       if (inputs & INPUTS_SAVE) {
-        PatchStorage::write(id, name);
+        Storage::Patches::write(id, name);
         break;
       }
 
       if (inputs & INPUTS_BACK) {
-        PatchStorage::print_patch();
+        Storage::Patches::print_patch();
         break;
       }
     }
@@ -202,7 +202,13 @@ namespace Menu {
 
         if (inputs & INPUTS_BACK) {
           active_menu = 0;
-          PatchStorage::print_patch();
+          Storage::Patches::print_patch();
+        } else if (inputs & INPUTS_SAVE) {
+          Storage::MIDISettings::write();
+
+          HD44780::print_all("MIDI settings", "saved to SD card");
+          active_menu = 0;
+          Menu::set_expiration();
         }
 
         break;
@@ -212,7 +218,7 @@ namespace Menu {
         }
 
         if (inputs & INPUTS_ENCODER_DOWN) {
-          user_write_patch(PatchStorage::current_id);
+          user_write_patch(Storage::Patches::current_id);
         }
 
         if (inputs & INPUTS_MIDI) {
@@ -222,13 +228,13 @@ namespace Menu {
 
         if (inputs & INPUTS_MANUAL) {
           Controls::set_current_values();
-          PatchStorage::new_patch();
+          Storage::Patches::new_patch();
         }
 
         if (inputs & INPUTS_ENCODER_CW) {
-          PatchStorage::read_next();
+          Storage::Patches::read_next();
         } else if (inputs & INPUTS_ENCODER_CCW) {
-          PatchStorage::read_previous();
+          Storage::Patches::read_previous();
         }
 
         break;

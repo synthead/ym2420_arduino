@@ -4,7 +4,7 @@
 #include "controls.h"
 #include "keys.h"
 #include "menu.h"
-#include "patch_storage.h"
+#include "storage.h"
 #include "midi.h"
 #include <SPI.h>
 #include <SD.h>
@@ -17,7 +17,7 @@ void setup() {
   HD44780::setup();
   YM2420::setup();
   Controls::setup();
-  PatchStorage::setup();
+  Storage::setup();
   MIDI::setup();
 
   Menu::startup_message();

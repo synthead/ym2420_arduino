@@ -10,6 +10,9 @@
 #define MIDI_NOTE_ON 0x90
 #define MIDI_CC 0xb0
 
+#define MIDI_DEFAULT_CHANNEL 0
+#define MIDI_DEFAULT_FIRST_CC 12
+
 namespace MIDI {
   extern uint8_t channel;
 

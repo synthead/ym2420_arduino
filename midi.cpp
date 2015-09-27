@@ -1,6 +1,7 @@
 #include "midi.h"
 #include "ym2420.h"
 #include "controls.h"
+#include "storage.h"
 #include <Arduino.h>
 
 #define MIDI_CHANNEL_MAX 15
@@ -19,30 +20,30 @@ namespace MIDI {
   uint8_t oscillators[MIDI_DATA_BYTE_MAX] = {0};
 
   namespace CC {
-    uint8_t multi_sample_wave_carrier       = 12;
-    uint8_t multi_sample_wave_modulation    = 13;
-    uint8_t modulation_index                = 14;
-    uint8_t fm_feedback_constant            = 15;
-    uint8_t level_key_scale_carrier         = 16;
-    uint8_t level_key_scale_modulation      = 17;
+    uint8_t multi_sample_wave_carrier;
+    uint8_t multi_sample_wave_modulation;
+    uint8_t modulation_index;
+    uint8_t fm_feedback_constant;
+    uint8_t level_key_scale_carrier;
+    uint8_t level_key_scale_modulation;
 
-    uint8_t attack_rate_carrier             = 18;
-    uint8_t decay_rate_carrier              = 19;
-    uint8_t sustain_rate_carrier            = 20;
-    uint8_t release_rate_carrier            = 21;
-    uint8_t attack_rate_modulation          = 22;
-    uint8_t decay_rate_modulation           = 23;
-    uint8_t sustain_rate_modulation         = 24;
-    uint8_t release_rate_modulation         = 25;
+    uint8_t attack_rate_carrier;
+    uint8_t decay_rate_carrier;
+    uint8_t sustain_rate_carrier;
+    uint8_t release_rate_carrier;
+    uint8_t attack_rate_modulation;
+    uint8_t decay_rate_modulation;
+    uint8_t sustain_rate_modulation;
+    uint8_t release_rate_modulation;
 
-    uint8_t amplitude_modulation_carrier    = 26;
-    uint8_t vibrato_carrier                 = 27;
-    uint8_t wave_distortion_carrier         = 28;
-    uint8_t rate_key_scale_carrier          = 29;
-    uint8_t amplitude_modulation_modulation = 30;
-    uint8_t vibrato_modulation              = 31;
-    uint8_t wave_distortion_modulation      = 32;
-    uint8_t rate_key_scale_modulation       = 33;
+    uint8_t amplitude_modulation_carrier;
+    uint8_t vibrato_carrier;
+    uint8_t wave_distortion_carrier;
+    uint8_t rate_key_scale_carrier;
+    uint8_t amplitude_modulation_modulation;
+    uint8_t vibrato_modulation;
+    uint8_t wave_distortion_modulation;
+    uint8_t rate_key_scale_modulation;
   }
 
   void setup() {
