@@ -3,6 +3,7 @@
 #include "ym2420.h"
 #include "menu.h"
 #include "midi.h"
+#include "controls.h"
 #include <Arduino.h>
 #include <SD.h>
 
@@ -40,42 +41,23 @@ namespace Storage {
   }
 
   namespace MIDISettings {
-    uint8_t* midi_settings_file_format[MIDI_SETTINGS_FILE_BYTES] = {
-        &MIDI::channel,
-
-        &MIDI::CC::multi_sample_wave_carrier,
-        &MIDI::CC::multi_sample_wave_modulation,
-        &MIDI::CC::modulation_index,
-        &MIDI::CC::fm_feedback_constant,
-        &MIDI::CC::level_key_scale_carrier,
-        &MIDI::CC::level_key_scale_modulation,
-
-        &MIDI::CC::attack_rate_carrier,
-        &MIDI::CC::decay_rate_carrier,
-        &MIDI::CC::sustain_rate_carrier,
-        &MIDI::CC::release_rate_carrier,
-        &MIDI::CC::attack_rate_modulation,
-        &MIDI::CC::decay_rate_modulation,
-        &MIDI::CC::sustain_rate_modulation,
-        &MIDI::CC::release_rate_modulation,
-
-        &MIDI::CC::amplitude_modulation_carrier,
-        &MIDI::CC::vibrato_carrier,
-        &MIDI::CC::wave_distortion_carrier,
-        &MIDI::CC::rate_key_scale_carrier,
-        &MIDI::CC::amplitude_modulation_modulation,
-        &MIDI::CC::vibrato_modulation,
-        &MIDI::CC::wave_distortion_modulation,
-        &MIDI::CC::rate_key_scale_modulation};
-
     void setup() {
       if (check_sdcard(false)) {
         File midi_settings_file = SD.open(MIDI_SETTINGS_FILE_PATH);
         bool midi_settings_file_found = (bool)midi_settings_file;
 
         if (midi_settings_file_found) {
-          for (uint8_t byte = 0; byte < MIDI_SETTINGS_FILE_BYTES; byte++) {
-            *midi_settings_file_format[byte] = midi_settings_file.read();
+          MIDI::channel = midi_settings_file.read();
+
+          for (uint8_t control = 0; control < ANALOG_CONTROL_COUNT; control++) {
+            *Controls::analog_controls[control].cc_number =
+                midi_settings_file.read();
+          }
+
+          for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT;
+               control++) {
+            *Controls::digital_controls[control].cc_number =
+                midi_settings_file.read();
           }
         }
 
@@ -84,9 +66,44 @@ namespace Storage {
         if (! midi_settings_file_found) {
           MIDI::channel = MIDI_DEFAULT_CHANNEL;
 
-          for (uint8_t byte = 1; byte < MIDI_SETTINGS_FILE_BYTES; byte++) {
-            *midi_settings_file_format[byte] = byte + MIDI_DEFAULT_FIRST_CC - 1;
-          }
+          MIDI::CC::multi_sample_wave_carrier =
+              MIDI_DEFAULT_MULTI_SAMPLE_WAVE_CARRIER_CC;
+          MIDI::CC::multi_sample_wave_modulation =
+              MIDI_DEFAULT_MULTI_SAMPLE_WAVE_MODULATION_CC;
+          MIDI::CC::modulation_index = MIDI_DEFAULT_MODULATION_INDEX_CC;
+          MIDI::CC::fm_feedback_constant = MIDI_DEFAULT_FM_FEEDBACK_CONSTANT_CC;
+          MIDI::CC::level_key_scale_carrier =
+              MIDI_DEFAULT_LEVEL_KEY_SCALE_CARRIER_CC;
+          MIDI::CC::level_key_scale_modulation =
+              MIDI_DEFAULT_LEVEL_KEY_SCALE_MODULATION_CC;
+
+          MIDI::CC::attack_rate_carrier = MIDI_DEFAULT_ATTACK_RATE_CARRIER_CC;
+          MIDI::CC::decay_rate_carrier = MIDI_DEFAULT_DECAY_RATE_CARRIER_CC;
+          MIDI::CC::sustain_rate_carrier = MIDI_DEFAULT_SUSTAIN_RATE_CARRIER_CC;
+          MIDI::CC::release_rate_carrier = MIDI_DEFAULT_RELEASE_RATE_CARRIER_CC;
+          MIDI::CC::attack_rate_modulation =
+              MIDI_DEFAULT_ATTACK_RATE_MODULATION_CC;
+          MIDI::CC::decay_rate_modulation =
+              MIDI_DEFAULT_DECAY_RATE_MODULATION_CC;
+          MIDI::CC::sustain_rate_modulation =
+              MIDI_DEFAULT_SUSTAIN_RATE_MODULATION_CC;
+          MIDI::CC::release_rate_modulation =
+              MIDI_DEFAULT_RELEASE_RATE_MODULATION_CC;
+
+          MIDI::CC::amplitude_modulation_carrier =
+              MIDI_DEFAULT_AMPLITUDE_MODULATION_CARRIER_CC;
+          MIDI::CC::vibrato_carrier = MIDI_DEFAULT_VIBRATO_CARRIER_CC;
+          MIDI::CC::wave_distortion_carrier =
+              MIDI_DEFAULT_WAVE_DISTORTION_CARRIER_CC;
+          MIDI::CC::rate_key_scale_carrier =
+              MIDI_DEFAULT_RATE_KEY_SCALE_CARRIER_CC;
+          MIDI::CC::amplitude_modulation_modulation =
+              MIDI_DEFAULT_AMPLITUDE_MODULATION_MODULATION_CC;
+          MIDI::CC::vibrato_modulation = MIDI_DEFAULT_VIBRATO_MODULATION_CC;
+          MIDI::CC::wave_distortion_modulation =
+              MIDI_DEFAULT_WAVE_DISTORTION_MODULATION_CC;
+          MIDI::CC::rate_key_scale_modulation =
+              MIDI_DEFAULT_RATE_KEY_SCALE_MODULATION_CC;
 
           write();
         }
@@ -98,8 +115,17 @@ namespace Storage {
         File midi_settings_file = SD.open(MIDI_SETTINGS_FILE_PATH, FILE_WRITE);
         midi_settings_file.seek(0);
 
-        for (uint8_t byte = 0; byte < MIDI_SETTINGS_FILE_BYTES; byte++) {
-          midi_settings_file.write(*midi_settings_file_format[byte]);
+        midi_settings_file.write(MIDI::channel);
+
+        for (uint8_t control = 0; control < ANALOG_CONTROL_COUNT; control++) {
+          midi_settings_file.write(
+              *Controls::analog_controls[control].cc_number);
+        }
+
+        for (uint8_t control = 0; control < DIGITAL_CONTROL_COUNT;
+             control++) {
+          midi_settings_file.write(
+              *Controls::digital_controls[control].cc_number);
         }
 
         midi_settings_file.close();

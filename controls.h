@@ -18,7 +18,6 @@ namespace Controls {
       const uint8_t chip_select;
       const uint8_t pin;
       YM2420::Range* ym2420_range;
-      uint8_t* cc_number;
       const char* line_1;
       const char* line_2;
       uint8_t param_value;
@@ -27,6 +26,8 @@ namespace Controls {
       uint8_t get_midi_value();
       uint8_t get_param_value();
     public:
+      uint8_t* cc_number;
+
       AnalogControl(
           const uint8_t, const uint8_t, uint8_t*, YM2420::Range*, const char*,
           const char*);
@@ -38,13 +39,14 @@ namespace Controls {
   class DigitalControl {
       const uint8_t pin;
       YM2420::Bit* ym2420_bit;
-      uint8_t* cc_number;
       const char* line_1;
       const char* line_2;
       bool value;
 
       bool read();
     public:
+      uint8_t* cc_number;
+
       DigitalControl(
           const uint8_t, uint8_t*, YM2420::Bit*, const char*, const char*);
       void set_current_value();
