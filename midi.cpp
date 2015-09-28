@@ -4,13 +4,7 @@
 #include "storage.h"
 #include <Arduino.h>
 
-#define MIDI_CHANNEL_MAX 15
 #define MIDI_DIGITAL_HIGH 64
-
-#define MIDI_CC_ANALOG_MIN 12
-#define MIDI_CC_ANALOG_MAX 25
-#define MIDI_CC_DIGITAL_MIN 26
-#define MIDI_CC_DIGITAL_MAX 33
 
 namespace MIDI {
   uint8_t channel = 0;
@@ -50,18 +44,6 @@ namespace MIDI {
     for (uint8_t oscillator = 0; oscillator < MIDI_DATA_BYTE_MAX;
          oscillator++) {
       oscillators[oscillator] = YM2420_NO_OSCILLATOR;
-    }
-  }
-
-  void next_channel() {
-    if (channel < MIDI_CHANNEL_MAX) {
-      channel++;
-    }
-  }
-
-  void previous_channel() {
-    if (channel > 0) {
-      channel--;
     }
   }
 

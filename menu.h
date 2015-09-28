@@ -7,6 +7,7 @@
 namespace Menu {
   extern uint8_t active_menu;
 
+  void midi_menu();
   void startup_message();
   void set_expiration();
   void check_expired_message();

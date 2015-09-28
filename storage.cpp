@@ -42,9 +42,12 @@ namespace Storage {
 
   namespace MIDISettings {
     void setup() {
-      if (check_sdcard(false)) {
+      bool sd_card_present = check_sdcard(false);
+      bool midi_settings_file_found;
+
+      if (sd_card_present) {
         File midi_settings_file = SD.open(MIDI_SETTINGS_FILE_PATH);
-        bool midi_settings_file_found = (bool)midi_settings_file;
+        midi_settings_file_found = midi_settings_file;
 
         if (midi_settings_file_found) {
           MIDI::channel = midi_settings_file.read();
@@ -62,56 +65,55 @@ namespace Storage {
         }
 
         midi_settings_file.close();
+      }
 
-        if (! midi_settings_file_found) {
-          MIDI::channel = MIDI_DEFAULT_CHANNEL;
+      if (! sd_card_present || ! midi_settings_file_found) {
+        MIDI::channel = MIDI_DEFAULT_CHANNEL;
 
-          MIDI::CC::multi_sample_wave_carrier =
-              MIDI_DEFAULT_MULTI_SAMPLE_WAVE_CARRIER_CC;
-          MIDI::CC::multi_sample_wave_modulation =
-              MIDI_DEFAULT_MULTI_SAMPLE_WAVE_MODULATION_CC;
-          MIDI::CC::modulation_index = MIDI_DEFAULT_MODULATION_INDEX_CC;
-          MIDI::CC::fm_feedback_constant = MIDI_DEFAULT_FM_FEEDBACK_CONSTANT_CC;
-          MIDI::CC::level_key_scale_carrier =
-              MIDI_DEFAULT_LEVEL_KEY_SCALE_CARRIER_CC;
-          MIDI::CC::level_key_scale_modulation =
-              MIDI_DEFAULT_LEVEL_KEY_SCALE_MODULATION_CC;
+        MIDI::CC::multi_sample_wave_carrier =
+            MIDI_DEFAULT_MULTI_SAMPLE_WAVE_CARRIER_CC;
+        MIDI::CC::multi_sample_wave_modulation =
+            MIDI_DEFAULT_MULTI_SAMPLE_WAVE_MODULATION_CC;
+        MIDI::CC::modulation_index = MIDI_DEFAULT_MODULATION_INDEX_CC;
+        MIDI::CC::fm_feedback_constant = MIDI_DEFAULT_FM_FEEDBACK_CONSTANT_CC;
+        MIDI::CC::level_key_scale_carrier =
+            MIDI_DEFAULT_LEVEL_KEY_SCALE_CARRIER_CC;
+        MIDI::CC::level_key_scale_modulation =
+            MIDI_DEFAULT_LEVEL_KEY_SCALE_MODULATION_CC;
 
-          MIDI::CC::attack_rate_carrier = MIDI_DEFAULT_ATTACK_RATE_CARRIER_CC;
-          MIDI::CC::decay_rate_carrier = MIDI_DEFAULT_DECAY_RATE_CARRIER_CC;
-          MIDI::CC::sustain_rate_carrier = MIDI_DEFAULT_SUSTAIN_RATE_CARRIER_CC;
-          MIDI::CC::release_rate_carrier = MIDI_DEFAULT_RELEASE_RATE_CARRIER_CC;
-          MIDI::CC::attack_rate_modulation =
-              MIDI_DEFAULT_ATTACK_RATE_MODULATION_CC;
-          MIDI::CC::decay_rate_modulation =
-              MIDI_DEFAULT_DECAY_RATE_MODULATION_CC;
-          MIDI::CC::sustain_rate_modulation =
-              MIDI_DEFAULT_SUSTAIN_RATE_MODULATION_CC;
-          MIDI::CC::release_rate_modulation =
-              MIDI_DEFAULT_RELEASE_RATE_MODULATION_CC;
+        MIDI::CC::attack_rate_carrier = MIDI_DEFAULT_ATTACK_RATE_CARRIER_CC;
+        MIDI::CC::decay_rate_carrier = MIDI_DEFAULT_DECAY_RATE_CARRIER_CC;
+        MIDI::CC::sustain_rate_carrier = MIDI_DEFAULT_SUSTAIN_RATE_CARRIER_CC;
+        MIDI::CC::release_rate_carrier = MIDI_DEFAULT_RELEASE_RATE_CARRIER_CC;
+        MIDI::CC::attack_rate_modulation =
+            MIDI_DEFAULT_ATTACK_RATE_MODULATION_CC;
+        MIDI::CC::decay_rate_modulation = MIDI_DEFAULT_DECAY_RATE_MODULATION_CC;
+        MIDI::CC::sustain_rate_modulation =
+            MIDI_DEFAULT_SUSTAIN_RATE_MODULATION_CC;
+        MIDI::CC::release_rate_modulation =
+            MIDI_DEFAULT_RELEASE_RATE_MODULATION_CC;
 
-          MIDI::CC::amplitude_modulation_carrier =
-              MIDI_DEFAULT_AMPLITUDE_MODULATION_CARRIER_CC;
-          MIDI::CC::vibrato_carrier = MIDI_DEFAULT_VIBRATO_CARRIER_CC;
-          MIDI::CC::wave_distortion_carrier =
-              MIDI_DEFAULT_WAVE_DISTORTION_CARRIER_CC;
-          MIDI::CC::rate_key_scale_carrier =
-              MIDI_DEFAULT_RATE_KEY_SCALE_CARRIER_CC;
-          MIDI::CC::amplitude_modulation_modulation =
-              MIDI_DEFAULT_AMPLITUDE_MODULATION_MODULATION_CC;
-          MIDI::CC::vibrato_modulation = MIDI_DEFAULT_VIBRATO_MODULATION_CC;
-          MIDI::CC::wave_distortion_modulation =
-              MIDI_DEFAULT_WAVE_DISTORTION_MODULATION_CC;
-          MIDI::CC::rate_key_scale_modulation =
-              MIDI_DEFAULT_RATE_KEY_SCALE_MODULATION_CC;
+        MIDI::CC::amplitude_modulation_carrier =
+            MIDI_DEFAULT_AMPLITUDE_MODULATION_CARRIER_CC;
+        MIDI::CC::vibrato_carrier = MIDI_DEFAULT_VIBRATO_CARRIER_CC;
+        MIDI::CC::wave_distortion_carrier =
+            MIDI_DEFAULT_WAVE_DISTORTION_CARRIER_CC;
+        MIDI::CC::rate_key_scale_carrier =
+            MIDI_DEFAULT_RATE_KEY_SCALE_CARRIER_CC;
+        MIDI::CC::amplitude_modulation_modulation =
+            MIDI_DEFAULT_AMPLITUDE_MODULATION_MODULATION_CC;
+        MIDI::CC::vibrato_modulation = MIDI_DEFAULT_VIBRATO_MODULATION_CC;
+        MIDI::CC::wave_distortion_modulation =
+            MIDI_DEFAULT_WAVE_DISTORTION_MODULATION_CC;
+        MIDI::CC::rate_key_scale_modulation =
+            MIDI_DEFAULT_RATE_KEY_SCALE_MODULATION_CC;
 
-          write();
-        }
+        write();
       }
     }
 
-    void write() {
-      if (check_sdcard(false)) {
+    bool write() {
+      if (check_sdcard(true)) {
         File midi_settings_file = SD.open(MIDI_SETTINGS_FILE_PATH, FILE_WRITE);
         midi_settings_file.seek(0);
 
@@ -129,7 +131,14 @@ namespace Storage {
         }
 
         midi_settings_file.close();
+
+        HD44780::print_all("MIDI settings", "saved to SD card");
+        Menu::set_expiration();
+
+        return true;
       }
+
+      return false;
     }
   }
 

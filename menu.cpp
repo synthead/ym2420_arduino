@@ -24,11 +24,14 @@
 #define TEMP_MESSAGE_EXPIRATION 3000
 
 namespace Menu {
-  unsigned long message_expires_ms = 0;
   uint8_t active_menu = 0;
+  uint8_t active_midi_menu = 0;
+  bool midi_menu_edit = false;
 
   uint8_t read_encoder = false;
   uint8_t last_inputs = 0;
+
+  unsigned long message_expires_ms = 0;
 
   void startup_message() {
     HD44780::print_all("Synthead YM2420", "SW version 0.1");
@@ -42,7 +45,12 @@ namespace Menu {
   void check_expired_message() {
     if (message_expires_ms && message_expires_ms < millis()) {
       message_expires_ms = 0;
-      Storage::Patches::print_patch();
+
+      if (active_menu == INPUTS_MIDI) {
+        midi_menu();
+      } else {
+        Storage::Patches::print_patch();
+      }
     }
   }
 
@@ -175,10 +183,42 @@ namespace Menu {
     }
   }
 
-  void midi_settings() {
-    char line_2[17];
-    sprintf(line_2, "Channel: %d", MIDI::channel + 1);
-    HD44780::print_all("MIDI settings:", line_2);
+  void midi_menu() {
+    if (active_midi_menu == 0) {
+      char line_2[17];
+      sprintf(line_2, "              %d", MIDI::channel + 1);
+      HD44780::print_all("MIDI channel", line_2);
+
+      if (midi_menu_edit) {
+        HD44780::position(14, 1);
+      }
+    } else {
+      uint8_t* cc_number;
+      const char* line_1;
+      const char* line_2;
+
+      if (active_midi_menu < ANALOG_CONTROL_COUNT + 1) {
+        uint8_t control = active_midi_menu - 1;
+
+        cc_number = Controls::analog_controls[control].cc_number;
+        line_1 = Controls::analog_controls[control].line_1;
+        line_2 = Controls::analog_controls[control].line_2;
+      } else {
+        uint8_t control = active_midi_menu - ANALOG_CONTROL_COUNT - 1;
+
+        cc_number = Controls::digital_controls[control].cc_number;
+        line_1 = Controls::digital_controls[control].line_1;
+        line_2 = Controls::digital_controls[control].line_2;
+      }
+
+      char line_2_full[17];
+      sprintf(line_2_full, "%s CC%d", line_2, *cc_number);
+      HD44780::print_all(line_1, line_2_full);
+
+      if (midi_menu_edit) {
+        HD44780::position(13, 1);
+      }
+    }
   }
 
   void scan_inputs() {
@@ -192,23 +232,64 @@ namespace Menu {
 
     switch (active_menu) {
       case INPUTS_MIDI:
-        if (inputs & INPUTS_ENCODER_CW) {
-          MIDI::next_channel();
-          midi_settings();
-        } else if (inputs & INPUTS_ENCODER_CCW) {
-          MIDI::previous_channel();
-          midi_settings();
+        if (midi_menu_edit && inputs & INPUTS_ENCODER_DOWN) {
+          midi_menu_edit = false;
+          HD44780::cursor(false);
+
+          break;
+        } else if (! midi_menu_edit && inputs & INPUTS_ENCODER_DOWN) {
+          midi_menu_edit = true;
+          HD44780::cursor(true);
+          HD44780::position(active_midi_menu == 0 ? 14 : 13, 1);
+
+          break;
         }
 
-        if (inputs & INPUTS_BACK) {
-          active_menu = 0;
-          Storage::Patches::print_patch();
-        } else if (inputs & INPUTS_SAVE) {
-          Storage::MIDISettings::write();
+        if (inputs) {
+          if (midi_menu_edit) {
+            if (active_midi_menu == 0) {
+              if (inputs & INPUTS_ENCODER_CW &&
+                  MIDI::channel < MIDI_CHANNEL_MAX) {
+                MIDI::channel++;
+              } else if (inputs & INPUTS_ENCODER_CCW && MIDI::channel > 0) {
+                MIDI::channel--;
+              }
+            } else {
+              uint8_t* cc_number = (
+                  active_midi_menu < ANALOG_CONTROL_COUNT + 1 ?
+                  Controls::analog_controls[active_midi_menu - 1].cc_number :
+                  Controls::digital_controls[
+                      active_midi_menu - ANALOG_CONTROL_COUNT - 1].cc_number);
 
-          HD44780::print_all("MIDI settings", "saved to SD card");
-          active_menu = 0;
-          Menu::set_expiration();
+              if (inputs & INPUTS_ENCODER_CW && *cc_number < MIDI_CC_MAX) {
+                ++*cc_number;
+              } else if (inputs & INPUTS_ENCODER_CCW && *cc_number > 0) {
+                --*cc_number;
+              }
+            }
+          } else {
+            if (inputs & INPUTS_ENCODER_CW &&
+                active_midi_menu < ANALOG_CONTROL_COUNT + DIGITAL_CONTROL_COUNT) {
+              active_midi_menu++;
+            } else if (inputs & INPUTS_ENCODER_CCW && active_midi_menu > 0) {
+              active_midi_menu--;
+            }
+
+            if (inputs & INPUTS_BACK) {
+              Storage::Patches::print_patch();
+              active_menu = 0;
+
+              break;
+            } else if (inputs & INPUTS_SAVE) {
+              if (Storage::MIDISettings::write()) {
+                active_menu = 0;
+              }
+
+              break;
+            }
+          }
+
+          midi_menu();
         }
 
         break;
@@ -223,7 +304,7 @@ namespace Menu {
 
         if (inputs & INPUTS_MIDI) {
           active_menu = INPUTS_MIDI;
-          midi_settings();
+          midi_menu();
         }
 
         if (inputs & INPUTS_MANUAL) {

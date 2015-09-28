@@ -14,7 +14,7 @@ namespace Storage {
 
   namespace MIDISettings {
     void setup();
-    void write();
+    bool write();
   }
 
   namespace Patches {

@@ -68,9 +68,9 @@ namespace Controls {
           HD44780::position_print(0, 0, line_1);
           HD44780::position_print(0, 1, line_2);
 
-          char percent_text[5];
+          char percent_text[7];
           sprintf(
-              percent_text, "%3d%%",
+              percent_text, "  %3d%%",
               param_value * 100 / ym2420_range->get_range());
           HD44780::print(percent_text);
 
@@ -128,105 +128,105 @@ namespace Controls {
       {MCP3008_0_CS, 0,
        &MIDI::CC::multi_sample_wave_carrier,
        &YM2420::multi_sample_wave_carrier,
-       "Multi-smple wave", "Carrier     "},
+       "Multi-smple wave", "Carrier   "},
 
       {MCP3008_0_CS, 1,
        &MIDI::CC::multi_sample_wave_modulation,
        &YM2420::multi_sample_wave_modulation,
-       "Multi-smple wave", "Modulation  "},
+       "Multi-smple wave", "Modulation"},
 
       {MCP3008_0_CS, 2,
        &MIDI::CC::modulation_index,
        &YM2420::modulation_index,
-       "Modulation index", "            "},
+       "Modulation index", "          "},
 
       {MCP3008_0_CS, 3,
        &MIDI::CC::fm_feedback_constant,
        &YM2420::fm_feedback_constant,
-       "FM feedback     ", "            "},
+       "FM feedback     ", "          "},
 
       {MCP3008_0_CS, 4,
        &MIDI::CC::level_key_scale_carrier,
        &YM2420::level_key_scale_carrier,
-       "LEVEL key scale ", "Carrier     "},
+       "LEVEL key scale ", "Carrier   "},
 
       {MCP3008_0_CS, 5,
        &MIDI::CC::level_key_scale_modulation,
        &YM2420::level_key_scale_modulation,
-       "LEVEL key scale ", "Modulation  "},
+       "LEVEL key scale ", "Modulation"},
 
       {MCP3008_1_CS, 0,
        &MIDI::CC::attack_rate_carrier,
        &YM2420::attack_rate_carrier,
-       "Attack          ", "Carrier     "},
+       "Attack          ", "Carrier   "},
 
       {MCP3008_1_CS, 1,
        &MIDI::CC::decay_rate_carrier,
        &YM2420::decay_rate_carrier,
-       "Decay           ", "Carrier     "},
+       "Decay           ", "Carrier   "},
 
       {MCP3008_1_CS, 2,
        &MIDI::CC::sustain_rate_carrier,
        &YM2420::sustain_rate_carrier,
-       "Sustain         ", "Carrier     "},
+       "Sustain         ", "Carrier   "},
 
       {MCP3008_1_CS, 3,
        &MIDI::CC::release_rate_carrier,
        &YM2420::release_rate_carrier,
-       "Release         ", "Carrier     "},
+       "Release         ", "Carrier   "},
 
       {MCP3008_1_CS, 4,
        &MIDI::CC::attack_rate_modulation,
        &YM2420::attack_rate_modulation,
-       "Attack          ", "Modulation  "},
+       "Attack          ", "Modulation"},
 
       {MCP3008_1_CS, 5,
        &MIDI::CC::decay_rate_modulation,
        &YM2420::decay_rate_modulation,
-       "Decay           ", "Modulation  "},
+       "Decay           ", "Modulation"},
 
       {MCP3008_1_CS, 6,
        &MIDI::CC::sustain_rate_modulation,
        &YM2420::sustain_rate_modulation,
-       "Sustain         ", "Modulation  "},
+       "Sustain         ", "Modulation"},
 
       {MCP3008_1_CS, 7,
        &MIDI::CC::release_rate_modulation,
        &YM2420::release_rate_modulation,
-       "Release         ", "Modulation  "}};
+       "Release         ", "Modulation"}};
 
   DigitalControl digital_controls[DIGITAL_CONTROL_COUNT] = {
       {0, &MIDI::CC::amplitude_modulation_carrier,
        &YM2420::amplitude_modulation_carrier,
-       "Amplitude Modltn", "Carrier      "},
+       "Amplitude Modltn", "Carrier   "},
 
       {1, &MIDI::CC::vibrato_carrier,
        &YM2420::vibrato_carrier,
-       "Vibrato         ", "Carrier      "},
+       "Vibrato         ", "Carrier   "},
 
       {2, &MIDI::CC::wave_distortion_carrier,
        &YM2420::wave_distortion_carrier,
-       "Wave distortion ", "Carrier      "},
+       "Wave distortion ", "Carrier   "},
 
       {3, &MIDI::CC::rate_key_scale_carrier,
        &YM2420::rate_key_scale_carrier,
-       "RATE key scale  ", "Carrier      "},
+       "RATE key scale  ", "Carrier   "},
 
       {4, &MIDI::CC::amplitude_modulation_modulation,
        &YM2420::amplitude_modulation_modulation,
-       "Amplitude Modltn", "Modulation   "},
+       "Amplitude Modltn", "Modulation"},
 
       {5, &MIDI::CC::vibrato_modulation,
        &YM2420::vibrato_modulation,
-       "Vibrato         ", "Modulation   "},
+       "Vibrato         ", "Modulation"},
 
       {6, &MIDI::CC::wave_distortion_modulation,
        &YM2420::wave_distortion_modulation,
-       "Wave distortion ", "Modulation   "},
+       "Wave distortion ", "Modulation"},
 
       {7, &MIDI::CC::rate_key_scale_modulation,
        &YM2420::rate_key_scale_modulation,
-       "RATE key scale  ", "Modulation   "}};
+       "RATE key scale  ", "Modulation"}};
 
   void set_current_values() {
     update_digital_values();

@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define MIDI_CHANNEL_MAX 15
+#define MIDI_CC_MAX 127
+
 #define MIDI_DATA_BYTE_MIN 0x00
 #define MIDI_DATA_BYTE_MAX 0x7f
 
@@ -42,8 +45,6 @@ namespace MIDI {
 
   void setup();
   void panic();
-  void next_channel();
-  void previous_channel();
   void send(uint8_t, uint8_t, uint8_t);
   void process_messages();
 
