@@ -11,6 +11,7 @@
 
 namespace Storage {
   void setup();
+  bool check_sdcard(bool);
 
   namespace MIDISettings {
     void setup();
@@ -23,7 +24,7 @@ namespace Storage {
 
     void new_patch();
     void print_patch();
-    void write(uint32_t, char*);
+    bool write(uint32_t, char*);
     void read(uint32_t);
     void read_next();
     void read_previous();

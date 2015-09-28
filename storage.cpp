@@ -165,7 +165,7 @@ namespace Storage {
       }
     }
 
-    void write(uint32_t id, char* name) {
+    bool write(uint32_t id, char* name) {
       if (check_sdcard(true)) {
         File patches_file = SD.open(PATCHES_FILE_PATH, FILE_WRITE);
         if (id == FIND_NEXT_ID) {
@@ -184,8 +184,11 @@ namespace Storage {
         modified = false;
         current_id = id;
         strcpy(current_name, name);
-        print_patch();
+
+        return true;
       }
+
+      return false;
     }
 
     void read(uint32_t id) {
@@ -209,7 +212,6 @@ namespace Storage {
 
           modified = false;
           current_id = id;
-          print_patch();
         }
 
         patches_file.close();

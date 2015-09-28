@@ -79,6 +79,10 @@ namespace Menu {
   }
 
   void user_write_patch(uint32_t id) {
+    if (! Storage::check_sdcard(true)) {
+      return;
+    }
+
     char user_input = NULL;
     uint8_t keys[6];
     uint8_t last_keys[6] = {0};
@@ -173,7 +177,10 @@ namespace Menu {
 
       if (inputs & INPUTS_SAVE) {
         HD44780::cursor(false);
-        Storage::Patches::write(id, name);
+
+        if (Storage::Patches::write(id, name)) {
+          Storage::Patches::print_patch();
+        }
 
         break;
       }
@@ -314,12 +321,15 @@ namespace Menu {
         if (inputs & INPUTS_MANUAL) {
           Controls::set_current_values();
           Storage::Patches::new_patch();
+          Storage::Patches::print_patch();
         }
 
         if (inputs & INPUTS_ENCODER_CW) {
           Storage::Patches::read_next();
+          Storage::Patches::print_patch();
         } else if (inputs & INPUTS_ENCODER_CCW) {
           Storage::Patches::read_previous();
+          Storage::Patches::print_patch();
         }
 
         break;
