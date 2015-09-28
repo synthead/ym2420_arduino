@@ -172,12 +172,16 @@ namespace Menu {
       }
 
       if (inputs & INPUTS_SAVE) {
+        HD44780::cursor(false);
         Storage::Patches::write(id, name);
+
         break;
       }
 
       if (inputs & INPUTS_BACK) {
+        HD44780::cursor(false);
         Storage::Patches::print_patch();
+
         break;
       }
     }
